@@ -124,6 +124,7 @@ function NuclearSimulationGame() {
   const [energyGenerated, setEnergyGenerated] = useState(0);
   const [fissionLevel, setFissionLevel] = useState("稳定态");
   const [started, setStarted] = useState(false);
+  const doneTimerRef = useRef(null);
 
   const gameRef = useRef({
     atoms: [], neutrons: [], explosions: [],
@@ -140,6 +141,7 @@ function NuclearSimulationGame() {
     canvasRef.current.width = game.width;
     canvasRef.current.height = game.height;
     game.atoms = []; game.neutrons = []; game.explosions = []; game.score = 0;
+    game.running = true;
     setEnergyGenerated(0); setFissionLevel("稳定态");
     const atomCount = game.width < 500 ? 20 : (game.width < 1024 ? 40 : 55);
     for (let i = 0; i < atomCount; i++) {
@@ -151,7 +153,6 @@ function NuclearSimulationGame() {
     if (started) return;
     setStarted(true);
     const game = gameRef.current;
-    game.running = true;
     initGame();
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -221,12 +222,14 @@ function NuclearSimulationGame() {
         else if (game.score > 500) setFissionLevel("链式起步");
       }
 
-      // 所有原子核已裂变且无飞行中子 → 自动暂停
+      // 所有原子核已裂变 → 1秒后自动暂停
       const hasActiveAtom = game.atoms.some(a => a.active);
-      if (!hasActiveAtom && game.neutrons.length === 0 && game.explosions.length === 0 && game.score > 0) {
-        game.running = false;
-        setFissionLevel("反应完成");
-        return;
+      if (!hasActiveAtom && game.score > 0 && game.running && !doneTimerRef.current) {
+        doneTimerRef.current = setTimeout(() => {
+          game.running = false;
+          setFissionLevel("反应完成");
+          doneTimerRef.current = null;
+        }, 1000);
       }
 
       game.rafId = requestAnimationFrame(gameLoop);
@@ -236,7 +239,7 @@ function NuclearSimulationGame() {
 
   const handleCanvasClick = (e) => {
     const game = gameRef.current;
-    if (!game.running) { startEngine(); return; }
+    if (!game.running) { initGame(); return; }
     const rect = canvasRef.current.getBoundingClientRect();
     const angle = Math.atan2(e.clientY - rect.top - game.height + 10, e.clientX - rect.left - game.width / 2);
     game.neutrons.push({ x: game.width / 2, y: game.height - 10, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4 });
@@ -261,16 +264,11 @@ function NuclearSimulationGame() {
       <div className="absolute bottom-0 left-0 w-full p-4 flex justify-between items-end z-10 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
         <span className="text-[10px] text-white/40 tracking-widest font-ui w-2/3 leading-relaxed">
           {gameRef.current && !gameRef.current.running && gameRef.current.score > 0
-            ? <strong className="text-cyan-400">反应完成！</strong>
+            ? <strong className="text-cyan-400">反应完成！点击画面重新开始</strong>
             : <><strong className="text-cyan-400">操作说明:</strong> 点击画面发射高能中子，轰击原子核以触发裂变链式反应。</>
           }
         </span>
-        <div className="flex gap-2">
-          {started && <button onClick={initGame} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-cyan-900/40 border border-white/10 hover:border-cyan-500/50 rounded-full transition-all text-[10px] text-white/80 hover:text-white"><RefreshIcon className="w-3.5 h-3.5" /><span>重置</span></button>}
-          {gameRef.current && !gameRef.current.running && gameRef.current.score > 0 && (
-            <button onClick={() => { const g = gameRef.current; g.running = true; g.score = 0; setEnergyGenerated(0); initGame(); }} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-cyan-700/60 hover:bg-cyan-600 border border-cyan-500/40 rounded-full transition-all text-[10px] text-white shadow-[0_0_10px_rgba(34,211,238,0.2)]"><svg className="w-3.5 h-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg><span>继续</span></button>
-          )}
-        </div>
+        {started && <button onClick={() => { if (doneTimerRef.current) clearTimeout(doneTimerRef.current); doneTimerRef.current = null; initGame(); }} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-cyan-900/40 border border-white/10 hover:border-cyan-500/50 rounded-full transition-all text-[10px] text-white/80 hover:text-white"><RefreshIcon className="w-3.5 h-3.5" /><span>重置</span></button>}
       </div>
       <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-12 h-12 bg-cyan-500/20 blur-xl rounded-full pointer-events-none"></div>
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 rounded-t-full border-t border-white pointer-events-none"></div>
