@@ -141,7 +141,7 @@ function NuclearSimulationGame() {
     canvasRef.current.height = game.height;
     game.atoms = []; game.neutrons = []; game.explosions = []; game.score = 0;
     setEnergyGenerated(0); setFissionLevel("稳定态");
-    const atomCount = game.width < 500 ? 12 : (game.width < 1024 ? 25 : 35);
+    const atomCount = game.width < 500 ? 20 : (game.width < 1024 ? 40 : 55);
     for (let i = 0; i < atomCount; i++) {
       game.atoms.push({ x: Math.random() * (game.width - 40) + 20, y: Math.random() * (game.height - 40) + 20, radius: 12, active: true, wobble: Math.random() * Math.PI * 2 });
     }
@@ -200,7 +200,10 @@ function NuclearSimulationGame() {
             break;
           }
         }
-        if (hit || n.x < 0 || n.x > game.width || n.y < 0 || n.y > game.height) game.neutrons.splice(i, 1);
+        // 中子碰到边缘反弹
+        if (!hit && (n.x < 0 || n.x > game.width)) { n.vx *= -1; n.x = Math.max(2, Math.min(game.width - 2, n.x)); }
+        if (!hit && (n.y < 0 || n.y > game.height)) { n.vy *= -1; n.y = Math.max(2, Math.min(game.height - 2, n.y)); }
+        if (hit) game.neutrons.splice(i, 1);
       }
 
       for (let i = game.explosions.length - 1; i >= 0; i--) {
@@ -217,6 +220,15 @@ function NuclearSimulationGame() {
         else if (game.score > 2000) setFissionLevel("剧烈反应");
         else if (game.score > 500) setFissionLevel("链式起步");
       }
+
+      // 所有原子核已裂变且无飞行中子 → 自动暂停
+      const hasActiveAtom = game.atoms.some(a => a.active);
+      if (!hasActiveAtom && game.neutrons.length === 0 && game.explosions.length === 0 && game.score > 0) {
+        game.running = false;
+        setFissionLevel("反应完成");
+        return;
+      }
+
       game.rafId = requestAnimationFrame(gameLoop);
     };
     game.rafId = requestAnimationFrame(gameLoop);
@@ -247,8 +259,18 @@ function NuclearSimulationGame() {
       </div>
       <canvas ref={canvasRef} onClick={handleCanvasClick} className="w-full h-full flex-1 cursor-crosshair z-0" />
       <div className="absolute bottom-0 left-0 w-full p-4 flex justify-between items-end z-10 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
-        <span className="text-[10px] text-white/40 tracking-widest font-ui w-2/3 leading-relaxed"><strong className="text-cyan-400">操作说明:</strong> 点击画面发射高能中子，轰击原子核以触发裂变链式反应。</span>
-        {started && <button onClick={initGame} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-cyan-900/40 border border-white/10 hover:border-cyan-500/50 rounded-full transition-all text-[10px] text-white/80 hover:text-white"><RefreshIcon className="w-3.5 h-3.5" /><span>重置</span></button>}
+        <span className="text-[10px] text-white/40 tracking-widest font-ui w-2/3 leading-relaxed">
+          {gameRef.current && !gameRef.current.running && gameRef.current.score > 0
+            ? <strong className="text-cyan-400">反应完成！</strong>
+            : <><strong className="text-cyan-400">操作说明:</strong> 点击画面发射高能中子，轰击原子核以触发裂变链式反应。</>
+          }
+        </span>
+        <div className="flex gap-2">
+          {started && <button onClick={initGame} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-cyan-900/40 border border-white/10 hover:border-cyan-500/50 rounded-full transition-all text-[10px] text-white/80 hover:text-white"><RefreshIcon className="w-3.5 h-3.5" /><span>重置</span></button>}
+          {gameRef.current && !gameRef.current.running && gameRef.current.score > 0 && (
+            <button onClick={() => { const g = gameRef.current; g.running = true; g.score = 0; setEnergyGenerated(0); initGame(); }} className="pointer-events-auto flex items-center gap-2 px-4 py-2 bg-cyan-700/60 hover:bg-cyan-600 border border-cyan-500/40 rounded-full transition-all text-[10px] text-white shadow-[0_0_10px_rgba(34,211,238,0.2)]"><svg className="w-3.5 h-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg><span>继续</span></button>
+          )}
+        </div>
       </div>
       <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-12 h-12 bg-cyan-500/20 blur-xl rounded-full pointer-events-none"></div>
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 rounded-t-full border-t border-white pointer-events-none"></div>
@@ -265,6 +287,9 @@ function RadiationShieldSimulator() {
   const [penetrated, setPenetrated] = useState(0);
   const [blocked, setBlocked] = useState(0);
   const [started, setStarted] = useState(false);
+  // 每次切换射线或屏蔽时重置计数器
+  const handleRayChange = (id) => { setActiveRay(id); setPenetrated(0); setBlocked(0); if (engineRef.current) { engineRef.current.pen = 0; engineRef.current.blk = 0; } };
+  const handleShieldChange = (id) => { setActiveShield(id); setPenetrated(0); setBlocked(0); if (engineRef.current) { engineRef.current.pen = 0; engineRef.current.blk = 0; } };
 
   const RAYS = [
     { id: 'alpha', name: 'α 射线', full: 'α 射线 (Alpha)', color: '#ef4444', speed: 3, size: 4, desc: '由两个质子和两个中子组成，体积大、速度慢。穿透力极弱，一张纸即可阻挡，但电离能力极强。' },
@@ -282,6 +307,10 @@ function RadiationShieldSimulator() {
   const ray = RAYS.find(r => r.id === activeRay) || RAYS[0];
   const shield = SHIELDS.find(s => s.id === activeShield) || SHIELDS[0];
   const engineRef = useRef({ particles: [], frame: 0, pen: 0, blk: 0, running: false });
+  const rayRef = useRef(activeRay);
+  const shieldRef = useRef(activeShield);
+  rayRef.current = activeRay;
+  shieldRef.current = activeShield;
 
   const isBlockedBy = (rayId, shieldId) => {
     if (shieldId === 'none') return false;
@@ -310,6 +339,9 @@ function RadiationShieldSimulator() {
 
     const render = () => {
       if (!rsVisible || !rsInView) { animId = requestAnimationFrame(render); return; }
+      // 从 ref 读取最新选择的射线和屏蔽
+      const curRay = RAYS.find(r => r.id === rayRef.current) || RAYS[0];
+      const curShield = SHIELDS.find(s => s.id === shieldRef.current) || SHIELDS[0];
       const w = canvas.width, h = canvas.height;
       const shieldX = w * 0.55;
       ctx.clearRect(0, 0, w, h);
@@ -317,16 +349,16 @@ function RadiationShieldSimulator() {
 
       ctx.beginPath(); ctx.arc(40, h/2, 28, 0, Math.PI*2);
       ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
-      ctx.strokeStyle = ray.color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = curRay.color; ctx.lineWidth = 2; ctx.stroke();
       ctx.beginPath(); ctx.arc(40, h/2, 8, 0, Math.PI*2);
-      ctx.fillStyle = ray.color; ctx.fill();
+      ctx.fillStyle = curRay.color; ctx.fill();
 
-      if (shield.id !== 'none') {
-        ctx.fillStyle = shield.color;
-        ctx.fillRect(shieldX, h*0.05, shield.thick, h*0.9);
+      if (curShield.id !== 'none') {
+        ctx.fillStyle = curShield.color;
+        ctx.fillRect(shieldX, h*0.05, curShield.thick, h*0.9);
         ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(shieldX, h*0.05, 3, h*0.9);
         ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(shield.name, shieldX + shield.thick/2, h - 8);
+        ctx.fillText(curShield.name, shieldX + curShield.thick/2, h - 8);
       }
 
       const detX = w - 45;
@@ -335,25 +367,25 @@ function RadiationShieldSimulator() {
       ctx.fillStyle = 'rgba(6,182,212,0.08)'; ctx.fill();
       ctx.strokeStyle = 'rgba(6,182,212,0.3)'; ctx.stroke();
 
-      if (eng.frame % (ray.id === 'gamma' ? 2 : 4) === 0) {
-        eng.particles.push({ x: 40, y: h/2 + (Math.random()-0.5)*50, baseY: h/2 + (Math.random()-0.5)*50, vx: ray.speed, size: ray.size * (0.5 + Math.random()), trail: [], angle: Math.random()*Math.PI*2 });
+      if (eng.frame % (curRay.id === 'gamma' ? 2 : 4) === 0) {
+        eng.particles.push({ x: 40, y: h/2 + (Math.random()-0.5)*50, baseY: h/2 + (Math.random()-0.5)*50, vx: curRay.speed, size: curRay.size * (0.5 + Math.random()), trail: [], angle: Math.random()*Math.PI*2 });
       }
 
       for (let i = eng.particles.length - 1; i >= 0; i--) {
         const p = eng.particles[i];
-        if (ray.id === 'gamma') { p.angle += 0.15; p.y = p.baseY + Math.sin(p.angle)*12; }
+        if (curRay.id === 'gamma') { p.angle += 0.15; p.y = p.baseY + Math.sin(p.angle)*12; }
         p.x += p.vx; p.trail.push({x:p.x, y:p.y});
         if (p.trail.length > 6) p.trail.shift();
-        if (p.x + p.size >= shieldX && p.x <= shieldX + shield.thick && shield.id !== 'none' && isBlockedBy(ray.id, shield.id)) {
+        if (p.x + p.size >= shieldX && p.x <= shieldX + curShield.thick && curShield.id !== 'none' && isBlockedBy(curRay.id, curShield.id)) {
           eng.blk++; eng.particles.splice(i, 1); continue;
         }
         for (let t = 0; t < p.trail.length-1; t++) {
           ctx.beginPath(); ctx.arc(p.trail[t].x, p.trail[t].y, p.size*(t/p.trail.length)*0.5, 0, Math.PI*2);
-          ctx.fillStyle = ray.color.replace(')', `,${(t/p.trail.length)*0.2})`).replace('rgb', 'rgba');
+          ctx.fillStyle = curRay.color.replace(')', `,${(t/p.trail.length)*0.2})`).replace('rgb', 'rgba');
           ctx.fill();
         }
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-        ctx.fillStyle = ray.color; ctx.fill();
+        ctx.fillStyle = curRay.color; ctx.fill();
         if (p.x > w) { eng.pen++; eng.particles.splice(i, 1); }
         else if (p.x < -20) { eng.particles.splice(i, 1); }
       }
@@ -397,8 +429,8 @@ function RadiationShieldSimulator() {
           <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/95 font-artistic">辐射屏蔽模拟测试仪</h3>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[9px] text-white/30 font-ui">穿透 <strong className="text-cyan-400">{penetrated}</strong></span>
-          <span className="text-[9px] text-white/30 font-ui">阻挡 <strong className="text-red-400">{blocked}</strong></span>
+          <span className="text-[9px] text-white/30 font-ui">穿透 <strong className="text-cyan-400">{blocked + penetrated === 0 ? '0' : Math.round(penetrated / (blocked + penetrated) * 100)}%</strong></span>
+          <span className="text-[9px] text-white/30 font-ui">阻挡 <strong className="text-red-400">{blocked + penetrated === 0 ? '0' : Math.round(blocked / (blocked + penetrated) * 100)}%</strong></span>
         </div>
       </div>
       <div className="relative w-full h-[280px] md:h-[360px] bg-[#02050a] border border-white/10 rounded-2xl overflow-hidden">
@@ -421,7 +453,7 @@ function RadiationShieldSimulator() {
           <label className="text-[9px] tracking-[0.2em] font-light text-cyan-200/50 uppercase font-artistic">1. 选择射线</label>
           <div className="flex gap-2">
             {RAYS.map(r => (
-              <button key={r.id} onClick={() => setActiveRay(r.id)}
+              <button key={r.id} onClick={() => handleRayChange(r.id)}
                 className={`flex-1 py-2.5 px-2 rounded-xl text-[10px] tracking-widest transition-all duration-300 border ${
                   activeRay === r.id ? 'text-white shadow-[0_0_12px_rgba(255,255,255,0.08)]' : 'text-white/40 hover:text-white/80'
                 }`}
@@ -435,7 +467,7 @@ function RadiationShieldSimulator() {
           <label className="text-[9px] tracking-[0.2em] font-light text-cyan-200/50 uppercase font-artistic">2. 设置屏蔽层</label>
           <div className="grid grid-cols-4 gap-2">
             {SHIELDS.map(s => (
-              <button key={s.id} onClick={() => setActiveShield(s.id)}
+              <button key={s.id} onClick={() => handleShieldChange(s.id)}
                 className={`py-2.5 px-1 rounded-xl text-[9px] tracking-widest transition-all duration-300 border ${
                   activeShield === s.id ? 'bg-cyan-900/40 border-cyan-500/40 text-cyan-50' : 'bg-black/30 border-transparent text-white/40 hover:bg-white/5 hover:text-white/80'
                 }`}
