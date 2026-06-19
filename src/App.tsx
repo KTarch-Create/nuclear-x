@@ -555,7 +555,7 @@ const DEFAULT_GALLERY = [
 
 const DEFAULT_MESSAGES = [];
 
-function SpiritSection({ setIsStoryOpen, onGalleryClick }) {
+function SpiritSection({ setIsStoryOpen, onGalleryClick, siteContent }) {
   const refs = useRef([]);
   const addToRefs = (el) => { if (el && !refs.current.includes(el)) refs.current.push(el); };
   // 运行时检测 base path，兼容 GitHub Pages 和本地开发
@@ -584,14 +584,14 @@ function SpiritSection({ setIsStoryOpen, onGalleryClick }) {
           "两弹一星"精神、核潜艇精神，一代代核工业人隐姓埋名，用青春与热血铸就了共和国的钢铁脊梁。从戈壁荒漠到高原深处，十段感人至深的故事，带你走进中国核工业的精神殿堂。
         </p>
         <button onClick={() => setIsStoryOpen(true)} className="mt-8 px-8 py-4 bg-cyan-700/80 hover:bg-cyan-600 active:scale-95 rounded-full text-[10px] md:text-xs text-white tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] backdrop-blur-md">
-          沉浸式阅读：十段光辉纪实
+          {siteContent?.sect4?.storyButton || '沉浸式阅读：十段光辉纪实'}
         </button>
       </div>
       <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
         {stories.map((story, idx) => (
           <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl transition-all duration-500 hover:-translate-y-0.5 group`}>
             {story.img.length > 0 && <div className={`w-full lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] bg-[#0a101d] ${idx % 2 === 0 ? 'rounded-l-2xl' : 'rounded-r-2xl'} overflow-hidden shrink-0 relative cursor-pointer group/img`} onClick={() => {
-              if (onGalleryClick) onGalleryClick(story.img, base);
+              if (onGalleryClick) onGalleryClick(story.img, base, story.title);
             }}>
               <img src={base + story.img[0]} alt={story.title} loading="lazy" className="w-full h-[200px] md:h-[260px] object-cover" />
               {story.img.length > 1 && <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
@@ -706,6 +706,7 @@ export default function App() {
   const currentMessages = Array.isArray(messages) ? messages : DEFAULT_MESSAGES;
 
   const [syncStatus, setSyncStatus] = useState('');
+  const [spiritCaption, setSpiritCaption] = useState('');
 
   // ================= GitHub 留言加载与同步 =================
   const loadMessagesFromGitHub = async () => {
@@ -1385,7 +1386,7 @@ export default function App() {
                 </div>
                 <div className="w-full lg:w-[45%] flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-5">
-                    <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">0{index + 3}</span>
+                    <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">0{index + 1}</span>
                     <div className="h-[1px] w-6 bg-cyan-500/40"></div>
                     <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">{item.subtitle}</span>
                   </div>
@@ -1404,8 +1405,8 @@ export default function App() {
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div>
-                  <span className="text-[9px] tracking-[0.3em] text-cyan-400/70 uppercase font-artistic">🧪 核能知识小测验</span>
-                  <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mt-2 font-artistic">测一测你的核能认知</h3>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-400/70 uppercase font-artistic">{siteContent?.quiz?.label || '🧪 核能知识小测验'}</span>
+                  <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mt-2 font-artistic">{siteContent?.quiz?.title || '测一测你的核能认知'}</h3>
                 </div>
                 {quizSubmitted && (
                   <div className="text-right">
@@ -1453,11 +1454,11 @@ export default function App() {
                       : 'bg-cyan-700/80 hover:bg-cyan-600 border border-cyan-500/40 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)]'
                     }`}
                   >
-                    提交答案
+                    {siteContent?.quiz?.submitText || '提交答案'}
                   </button>
                 ) : (
                   <>
-                    <button onClick={handleQuizReset} className="px-8 py-3 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-[10px] tracking-widest text-white/60 hover:text-white transition-all">重新作答</button>
+                    <button onClick={handleQuizReset} className="px-8 py-3 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-[10px] tracking-widest text-white/60 hover:text-white transition-all">{siteContent?.quiz?.retryText || '重新作答'}</button>
                     <div className="flex items-center gap-2 px-6 py-3 bg-cyan-900/20 border border-cyan-500/20 rounded-xl">
                       <span className="text-[9px] tracking-widest text-cyan-200/70">成绩</span>
                       <span className="text-lg font-light text-cyan-300">{quizScore}/{QUIZ_DATA.length}</span>
@@ -1621,25 +1622,21 @@ export default function App() {
                 </div>
                 <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mb-6">核事故应急——牢记<strong className="text-cyan-300">九字诀</strong></h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
-                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">📡</div>
-                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">听指挥</h4>
-                    <p className="text-[11px] text-white/50 font-light leading-relaxed">第一时间获取官方信息，不信谣、不传谣。</p>
+                {(siteContent?.sect3?.emergencyCards || [
+                  {title:'听指挥', text:'第一时间获取官方信息，不信谣、不传谣。'},
+                  {title:'快隐蔽', text:'立即进入室内，关闭门窗和通风系统（外照射可减至室外½~¹⁄₁₀）。'},
+                  {title:'戴口罩', text:'用湿毛巾捂住口鼻，减少吸入放射性物质（可降至¹⁄₁₀）。'}
+                ]).map((card, i) => (
+                  <div key={i} className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
+                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">{['📡','🏠','😷'][i]}</div>
+                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">{card.title}</h4>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">{card.text}</p>
                   </div>
-                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
-                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">🏠</div>
-                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">快隐蔽</h4>
-                    <p className="text-[11px] text-white/50 font-light leading-relaxed">立即进入室内，关闭门窗和通风系统（外照射可减至室外½~¹⁄₁₀）。</p>
-                  </div>
-                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
-                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">😷</div>
-                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">戴口罩</h4>
-                    <p className="text-[11px] text-white/50 font-light leading-relaxed">用湿毛巾捂住口鼻，减少吸入放射性物质（可降至¹⁄₁₀）。</p>
-                  </div>
-                </div>
-                <div className="bg-[#040a18]/60 border border-cyan-500/10 rounded-xl px-5 py-3">
-                  <p className="text-[10px] text-white/40 font-light leading-relaxed text-center">必要时服用稳定性碘（须遵医嘱，碘盐无效），并按指令有序撤离或进行食物饮水控制。</p>
-                </div>
+                ))}
+              </div>
+              <div className="bg-[#040a18]/60 border border-cyan-500/10 rounded-xl px-5 py-3">
+                <p className="text-[10px] text-white/40 font-light leading-relaxed text-center">{siteContent?.sect3?.emergencyNote || '必要时服用稳定性碘（须遵医嘱，碘盐无效），并按指令有序撤离或进行食物饮水控制。'}</p>
+              </div>
               </div>
             </div>
 
@@ -1656,8 +1653,9 @@ export default function App() {
 
         {/* ================= 板块4：精神与文化 ================= */}
         <section id="spirit" className="site-section relative z-20 py-24 px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto">
-          <SpiritSection setIsStoryOpen={setIsStoryOpen} onGalleryClick={(imgs, base) => {
+          <SpiritSection setIsStoryOpen={setIsStoryOpen} siteContent={siteContent} onGalleryClick={(imgs, base, title) => {
             const fullUrls = imgs.map(i => base + i);
+            setSpiritCaption(title || '');
             openLightboxSilky('spirit-gallery', fullUrls, 0);
           }} />
         </section>
@@ -1718,7 +1716,7 @@ export default function App() {
               <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 6. 读者畅想</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">未来的回响</h2>
-            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">分享您对核技术应用与发展的独到见解</p>
+            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">{siteContent?.sect6?.desc || '分享您对核技术应用与发展的独到见解'}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start reveal-section" ref={addToRefs}>
@@ -1726,28 +1724,28 @@ export default function App() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-600/10 blur-[60px] pointer-events-none"></div>
 
               <div className="flex flex-col gap-2 relative z-10">
-                <label className="text-[10px] tracking-[0.2em] font-light text-cyan-200/60 uppercase font-artistic">Signature (署名)</label>
+                <label className="text-[10px] tracking-[0.2em] font-light text-cyan-200/60 uppercase font-artistic">{siteContent?.sect6?.formNameLabel || 'Signature (署名)'}</label>
                 <input
                   type="text" maxLength="12" value={nickname}
                   onChange={(e) => { setNickname(e.target.value); if (e.target.value.trim()) setFormError(prev => ({ ...prev, name: false })); }}
-                  placeholder="留下您的称呼..."
+                  placeholder={siteContent?.sect6?.formNamePlaceholder || '留下您的称呼...'}
                   className={`w-full bg-[#040a18]/60 text-sm text-white/95 placeholder:text-white/20 font-light border rounded-xl py-3.5 px-4 outline-none transition-all duration-300 focus:bg-[#07101d]/80 ${formError.name ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/10 focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(34,211,238,0.15)]'}`}
                 />
               </div>
 
               <div className="flex flex-col gap-2 relative z-10">
-                <label className="text-[10px] tracking-[0.2em] font-light text-cyan-200/60 uppercase font-artistic">Insights (见解)</label>
+                <label className="text-[10px] tracking-[0.2em] font-light text-cyan-200/60 uppercase font-artistic">{siteContent?.sect6?.formTextLabel || 'Insights (见解)'}</label>
                 <textarea
                   rows="4" maxLength="300" value={content}
                   onChange={(e) => { setContent(e.target.value); if (e.target.value.trim()) setFormError(prev => ({ ...prev, text: false })); }}
-                  placeholder="畅所欲言，科学的进步离不开每一份思考..."
+                  placeholder={siteContent?.sect6?.formTextPlaceholder || '畅所欲言，科学的进步离不开每一份思考...'}
                   className={`w-full bg-[#040a18]/60 text-sm text-white/95 placeholder:text-white/20 font-light border rounded-xl py-3.5 px-4 outline-none transition-all duration-300 resize-none focus:bg-[#07101d]/80 ${formError.text ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/10 focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(34,211,238,0.15)]'}`}
                 />
               </div>
 
               <button type="submit" className="mt-2 w-full bg-cyan-700/80 hover:bg-cyan-600 active:scale-95 transition-all duration-300 text-[10px] tracking-[0.3em] font-light text-white py-4 rounded-xl flex items-center justify-center gap-2 select-none shadow-[0_0_20px_rgba(34,211,238,0.2)] relative z-10">
                 <SendIcon className="w-3.5 h-3.5" />
-                <span>递交寄语</span>
+                <span>{siteContent?.sect6?.submitButton || '递交寄语'}</span>
               </button>
               {syncStatus && <div className="text-[8px] text-center text-cyan-400/50 tracking-wider font-ui relative z-10">{syncStatus}</div>}
             </form>
@@ -1798,9 +1796,15 @@ export default function App() {
             )}
             
             <div className={`w-full max-w-2xl bg-[#040a18]/60 backdrop-blur-lg border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl text-center select-text lightbox-card ${lightbox.isActive ? 'active' : ''}`}>
-              <span className="text-[9px] tracking-[0.3em] text-cyan-400/90 font-medium mb-2 block uppercase drop-shadow-md">{previewData.subtitle}</span>
-              <h3 className="text-lg md:text-2xl font-light tracking-widest text-white/95 mb-4 drop-shadow-lg">{previewData.title}</h3>
-              <p className="text-xs md:text-sm text-white/70 font-light leading-relaxed tracking-wider max-w-xl mx-auto italic">"{lightbox.type === 'collection' ? previewData.story : previewData.desc}"</p>
+              {lightbox.type === 'spirit-gallery' ? (
+                <p className="text-xs md:text-sm text-cyan-300/90 font-light tracking-widest drop-shadow-md">{spiritCaption}</p>
+              ) : (
+                <>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-400/90 font-medium mb-2 block uppercase drop-shadow-md">{previewData.subtitle}</span>
+                  <h3 className="text-lg md:text-2xl font-light tracking-widest text-white/95 mb-4 drop-shadow-lg">{previewData.title}</h3>
+                  <p className="text-xs md:text-sm text-white/70 font-light leading-relaxed tracking-wider max-w-xl mx-auto italic">"{lightbox.type === 'collection' ? previewData.story : previewData.desc}"</p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1854,7 +1858,7 @@ export default function App() {
       {/* ================= 参考资料与数据来源 ================= */}
       <div className="bg-[#040a18] px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto py-12 border-t border-white/[0.03] font-ui">
         <div className="text-center">
-          <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic mb-6 block">REFERENCES & DATA SOURCES</span>
+          <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic mb-6 block">{siteContent?.references?.label || 'REFERENCES & DATA SOURCES'}</span>
           <div className="text-[9px] md:text-[10px] text-white/20 leading-loose tracking-wide max-w-2xl mx-auto">
             本文中的核科学知识参考自国际原子能机构（IAEA）公开出版物、中国核能行业协会年度报告、<br className="hidden md:block" />
             以及《原子能法》官方公开文本。辐射剂量数据参照联合国原子辐射效应科学委员会（UNSCEAR）报告。<br />
@@ -1924,12 +1928,32 @@ export default function App() {
                     <div key={sectionKey} className="border border-white/[0.06] rounded-2xl p-4 space-y-3">
                       <div className="text-[9px] tracking-widest text-cyan-400/60 uppercase font-artistic">{sectionKey.toUpperCase()}</div>
                       {Object.entries(section).map(([fieldKey, value]) => {
-                        if (fieldKey === 'cards') return null;
-                        const fieldPath = `${sectionKey}.${fieldKey}`;
+                        if (Array.isArray(value)) {
+                          return (
+                            <div key={fieldKey}>
+                              <label className="text-[8px] text-white/30 uppercase tracking-wider font-ui mb-2 block">{fieldKey}</label>
+                              {value.map((item, vi) => (
+                                <div key={vi} className="border border-cyan-500/10 rounded-xl p-3 space-y-2 mb-2">
+                                  <span className="text-[8px] text-cyan-400/50 uppercase tracking-wider font-ui">{fieldKey} #{vi + 1}</span>
+                                  {Object.entries(item).map(([k, v]) => (
+                                    <div key={k}>
+                                      <label className="text-[7px] text-white/20 uppercase tracking-wider font-ui">{k}</label>
+                                      {String(v || '').length > 60 ? (
+                                        <textarea value={String(v || '')} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey][fieldKey][vi][k] = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 font-ui resize-none" rows={2} />
+                                      ) : (
+                                        <input value={String(v || '')} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey][fieldKey][vi][k] = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 font-ui" />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
                         const contentStr = String(value || '');
                         const isLong = contentStr.length > 80;
                         return (
-                          <div key={fieldPath} className="space-y-1">
+                          <div key={fieldKey} className="space-y-1">
                             <label className="text-[8px] text-white/30 uppercase tracking-wider font-ui">{fieldKey}</label>
                             {isLong ? (
                               <textarea value={contentStr} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey][fieldKey] = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui resize-none" rows={4} />
@@ -1939,14 +1963,6 @@ export default function App() {
                           </div>
                         );
                       })}
-                      {/* SECT 5 卡片管理 */}
-                      {section.cards && section.cards.map((card, ci) => (
-                        <div key={ci} className="border border-cyan-500/10 rounded-xl p-3 space-y-2">
-                          <span className="text-[8px] text-cyan-400/50 uppercase tracking-wider font-ui">卡片 {ci + 1}</span>
-                          <input value={card.title} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey].cards[ci].title = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui" />
-                          <textarea value={card.text} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey].cards[ci].text = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui resize-none" rows={3} />
-                        </div>
-                      ))}
                     </div>
                   ))}
                   <div className="flex items-center gap-3 pt-2">
