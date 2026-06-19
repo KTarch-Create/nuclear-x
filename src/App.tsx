@@ -35,8 +35,8 @@ const reversedToken = 'uKDDb4LwWuuG0x9khy7qeA2kgTvZCNkLEs4l_phg';
 const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
 
 async function getGitHubFile(path) {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?t=${Date.now()}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, 'Cache-Control': 'no-cache, no-store' } });
   if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
   const data = await res.json();
   const decoded = atob(data.content);
