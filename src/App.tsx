@@ -260,7 +260,7 @@ function NuclearSimulationGame() {
         <div className="flex flex-col gap-1"><span className="text-[10px] text-cyan-400/80 tracking-widest font-ui uppercase">Energy Generated</span><span className="text-xl text-white font-artistic drop-shadow-md">{energyGenerated} <span className="text-[10px] text-white/50">MWh</span></span></div>
         <div className="flex flex-col gap-1 text-right"><span className="text-[10px] text-cyan-400/80 tracking-widest font-ui uppercase">Reactor Status</span><span className={`text-sm font-artistic drop-shadow-md ${energyGenerated > 5000 ? 'text-red-400 animate-pulse' : 'text-cyan-200'}`}>{fissionLevel}</span></div>
       </div>
-      <canvas ref={canvasRef} onClick={handleCanvasClick} className="w-full h-full flex-1 cursor-crosshair z-0" />
+      <canvas ref={canvasRef} onClick={handleCanvasClick} className="w-full h-full flex-1 cursor-crosshair z-0 touch-none" />
       <div className="absolute bottom-0 left-0 w-full p-4 flex justify-between items-end z-10 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
         <span className="text-[10px] text-white/40 tracking-widest font-ui w-2/3 leading-relaxed">
           {gameRef.current && !gameRef.current.running && gameRef.current.score > 0
@@ -432,7 +432,7 @@ function RadiationShieldSimulator() {
         </div>
       </div>
       <div className="relative w-full h-[280px] md:h-[360px] bg-[#02050a] border border-white/10 rounded-2xl overflow-hidden">
-        <canvas ref={canvasRef} className="w-full h-full z-0" />
+        <canvas ref={canvasRef} className="w-full h-full z-0 touch-none" />
         {!started && (
           <div onClick={startEngine} className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer bg-[#02050a]/90 backdrop-blur-sm transition-all hover:bg-[#02050a]/70 group">
             <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-all">
@@ -875,7 +875,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="min-h-screen bg-[#040a18] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-hidden font-ui relative">
+      <div className="min-h-screen bg-[#040a18] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-clip font-ui relative">
       {/* 注入全局 CSS：通过 dangerouslySetInnerHTML 防治 React 渲染树错乱 */}
       <style dangerouslySetInnerHTML={{ __html: `
         .font-artistic { font-family: 'STSong', 'Songti SC', 'Noto Serif SC', 'SimSun', serif; }
