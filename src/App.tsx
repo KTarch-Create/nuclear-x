@@ -485,8 +485,7 @@ const SITE_SECTIONS = [
   { id: 'safety', num: '3', title: '辐射安全', desc: '理性认知，科学护航日常生活' },
   { id: 'spirit', num: '4', title: '精神传承', desc: '两弹一星与核潜艇的奋斗史' },
   { id: 'policy', num: '5', title: '政策法规', desc: '原子能法与核安全观深度解读' },
-  { id: 'album', num: '6', title: '全景图集', desc: '探索多维度的核能高光瞬间' },
-  { id: 'forum', num: '7', title: '读者畅想', desc: '思想碰撞，分享您对未来的见解' }
+  { id: 'forum', num: '6', title: '读者畅想', desc: '思想碰撞，分享您对未来的见解' }
 ];
 
 const DEFAULT_GALLERY = [
@@ -513,15 +512,6 @@ const DEFAULT_GALLERY = [
 ];
 
 const DEFAULT_COLLECTION = [
-  { id: "photo-1", title: "天然辐射与剂量", category: "安全与防护", subtitle: "NATURAL RADIATION", image: "https://images.unsplash.com/photo-1506744626753-1fa28f67ea1c?auto=format&fit=crop&w=1000&q=85", story: "宇宙射线、脚下的土壤，甚至你吃下的香蕉都带有天然辐射。" },
-  { id: "photo-2", title: "防护三原则", category: "安全与防护", subtitle: "SAFETY PRINCIPLES", image: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1000&q=85", story: "时间、距离、屏蔽——这是辐射防护的三大铁律，构筑坚不可摧的安全防线。" },
-  { id: "photo-3", title: "戈壁的丰碑", category: "工业精神", subtitle: "TWO BOMBS", image: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1000&q=85", story: "隐姓埋名数十载，老一辈核工业人为共和国铸就了不屈的脊梁。" },
-  { id: "photo-4", title: "深潜报国", category: "工业精神", subtitle: "SCIENTIST FOOTPRINTS", image: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=1000&q=85", story: "核工业科学家们的感人事迹，让中国核事业从无到有，劈波斩浪。" },
-  { id: "photo-5", title: "环境治理", category: "技术应用", subtitle: "ENVIRONMENT", image: "https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=1000&q=85", story: "利用电子束处理废水，核技术在环保领域发挥着交叉研究价值。" },
-  { id: "photo-6", title: "同位素技术", category: "技术应用", subtitle: "ISOTOPE TRACING", image: "https://images.unsplash.com/photo-1555664424-778a1e5e3b48?auto=format&fit=crop&w=1000&q=85", story: "同位素示踪技术被广泛应用于医学和水文学，揭示物质循环路径。" }
-];
-
-const DEFAULT_MESSAGES = [
   { id: 101, name: "青年学者", text: "探讨和畅想是非常必要的。核能不仅仅是硬核技术，更是关乎人类命运共同体的重大议题，期待论坛中能看到更多有趣的观点！", time: "2026-06-15 19:42" },
   { id: 102, name: "未来探索者", text: "极具质感的设计让人能沉下心来阅读硬核的科普内容。非常期待第四代反应堆的商业化应用，清洁能源普及指日可待！", time: "2026-06-16 09:15" }
 ];
@@ -629,12 +619,10 @@ export default function App() {
 
   // 动态数据挂载（安全读取）
   const [galleryItems, setGalleryItems] = useState(() => safeGetStorage('nuke_gallery_items', DEFAULT_GALLERY));
-  const [collectionPhotos, setCollectionPhotos] = useState(() => safeGetStorage('nuke_collection_photos', DEFAULT_COLLECTION));
   const [messages, setMessages] = useState(() => safeGetStorage('nuke_guest_messages', DEFAULT_MESSAGES));
 
   const [lightbox, setLightbox] = useState({ isOpen: false, isActive: false, type: null, item: null, index: null });
-  const [activePhotoCategory, setActivePhotoCategory] = useState('安全与防护');
-  
+
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
   const [formError, setFormError] = useState({ name: false, text: false });
@@ -661,7 +649,6 @@ export default function App() {
 
   // 保障数组可用性，防止崩溃
   const currentGallery = Array.isArray(galleryItems) ? galleryItems : DEFAULT_GALLERY;
-  const currentCollection = Array.isArray(collectionPhotos) ? collectionPhotos : DEFAULT_COLLECTION;
   const currentMessages = Array.isArray(messages) ? messages : DEFAULT_MESSAGES;
 
   const revealRefs = useRef([]);
@@ -769,7 +756,7 @@ export default function App() {
     setNickname(''); setContent(''); setFormError({ name: false, text: false });
   };
 
-  const filteredPhotos = currentCollection.filter(p => p.category === activePhotoCategory);
+  const filteredPhotos = [];
 
   const openLightboxSilky = (type, item = null, index = null) => {
     setLightbox({ isOpen: true, isActive: false, type, item, index });
@@ -1360,49 +1347,13 @@ export default function App() {
           </div>
         </section>
 
-        {/* ================= 板块6：综合科普图集 ================= */}
-        <section id="album" className="site-section relative z-20 py-20 px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto">
-          <div className="text-center mb-16 reveal-section" ref={addToRefs}>
-            <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
-              <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 6. 全景图集</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">高光瞬间</h2>
-
-            <div className="flex justify-center gap-2 mt-10 max-w-sm mx-auto p-1.5 bg-white/[0.02] backdrop-blur-md border border-white/10 rounded-full font-ui shadow-inner">
-              {['安全与防护', '技术应用', '工业精神'].map((cat) => (
-                <button key={cat} onClick={() => setActivePhotoCategory(cat)} className={`flex-1 py-2 text-[9px] tracking-[0.15em] font-light rounded-full transition-all duration-300 select-none ${activePhotoCategory === cat ? 'bg-cyan-900/70 border border-cyan-500/40 text-cyan-50 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'text-white/40 hover:text-white/80 border border-transparent'}`}>
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 reveal-section" ref={addToRefs}>
-            {filteredPhotos.map((photo, index) => (
-              <div key={photo.id} onClick={() => openLightboxSilky('collection', null, index)} className="group cursor-pointer bg-white/[0.015] backdrop-blur-xl border border-white/[0.05] rounded-2xl overflow-hidden relative shadow-lg hover:shadow-[0_15px_30px_rgba(34,211,238,0.1)] hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 cursor-zoom-in">
-                <div className="aspect-[4/3] w-full overflow-hidden relative">
-                  <img src={photo.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#040a18] via-[#040a18]/40 to-transparent opacity-95 transition-opacity duration-500"></div>
-                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 flex flex-col justify-end transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <span className="text-[8px] tracking-[0.25em] text-cyan-400 font-medium uppercase mb-1.5 drop-shadow-md">{photo.subtitle}</span>
-                    <div className="flex justify-between items-baseline">
-                      <h3 className="text-base md:text-lg font-light tracking-widest text-white/95 text-ellipsis overflow-hidden">{photo.title}</h3>
-                      <span className="text-[9px] tracking-widest font-extralight text-cyan-500/50 group-hover:text-cyan-300 transition-colors duration-300 font-ui shrink-0">ZOOM</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* ================= 板块6：论坛留言板 ================= */}
         <section id="forum" className="site-section relative z-20 py-24 px-6 md:px-12 lg:px-32 max-w-[1200px] mx-auto">
           <div className="text-center mb-16 reveal-section" ref={addToRefs}>
             <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <MessageSquareIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 7. 读者畅想</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 6. 读者畅想</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">未来的回响</h2>
             <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">分享您对核技术应用与发展的独到见解</p>
