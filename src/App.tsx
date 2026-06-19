@@ -35,8 +35,19 @@ const reversedToken = 'uKDDb4LwWuuG0x9khy7qeA2kgTvZCNkLEs4l_phg';
 const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
 
 async function getGitHubFile(path) {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?t=${Date.now()}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, 'Cache-Control': 'no-cache, no-store' } });
+  // 用 raw 地址绕过 Contents API CDN 缓存
+  const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master/${path}?_=${Date.now()}`;
+  const rawRes = await fetch(rawUrl, { cache: 'no-store' });
+  if (rawRes.ok) {
+    const text = await rawRes.text();
+    return { content: JSON.parse(text), sha: null };
+  }
+  throw new Error(`Raw fetch failed: ${rawRes.status}`);
+}
+
+async function getFileWithSha(path) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }, cache: 'no-store' });
   if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
   const data = await res.json();
   const decoded = atob(data.content);
@@ -726,7 +737,7 @@ export default function App() {
   const saveMessagesToGitHub = async (msgs) => {
     setSyncStatus('同步中...');
     try {
-      const { sha } = await getGitHubFile(MESSAGES_PATH);
+      const { sha } = await getFileWithSha(MESSAGES_PATH);
       await writeGitHubFile(MESSAGES_PATH, msgs, `更新留言板 (${msgs.length} 条留言)`, sha);
       setSyncStatus('已同步');
     } catch (e) {
@@ -779,7 +790,7 @@ export default function App() {
     if (!editingContent) return;
     setAdminSaveStatus('保存中...');
     try {
-      const { sha } = await getGitHubFile('site-content.json');
+      const { sha } = await getFileWithSha('site-content.json');
       await writeGitHubFile('site-content.json', editingContent, '更新页面文本', sha);
       setSiteContent(editingContent);
       setAdminSaveStatus('已保存');
@@ -794,7 +805,7 @@ export default function App() {
     setMessages(updated);
     safeSetStorage('nuke_guest_messages', updated);
     try {
-      const { sha } = await getGitHubFile(MESSAGES_PATH);
+      const { sha } = await getFileWithSha(MESSAGES_PATH);
       await writeGitHubFile(MESSAGES_PATH, updated, `管理员删除留言 (ID: ${id})`, sha);
     } catch (e) {
       console.warn('Delete sync failed:', e);
@@ -810,7 +821,7 @@ export default function App() {
 
   const handleChangePassword = async (oldPw, newPw) => {
     const oldHash = await sha256(oldPw);
-    const { content: config, sha } = await getGitHubFile('admin-config.json');
+    const { content: config, sha } = await getFileWithSha('admin-config.json');
     if (oldHash !== config.passwordHash) return '旧密码错误';
     const newHash = await sha256(newPw);
     config.passwordHash = newHash;
@@ -825,7 +836,7 @@ export default function App() {
     setSecStatus('');
     try {
       const oldHash = await sha256(secOldPw);
-      const { content: config, sha } = await getGitHubFile('admin-config.json');
+      const { content: config, sha } = await getFileWithSha('admin-config.json');
       if (oldHash !== config.passwordHash) { setSecStatus('旧密码错误'); return; }
       config.passwordHash = await sha256(secNewPw);
       await writeGitHubFile('admin-config.json', config, '修改管理员密码', sha);
