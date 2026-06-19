@@ -625,15 +625,6 @@ export default function App() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // 后台系统状态
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [loginError, setLoginError] = useState(false);
-  const [adminTab, setAdminTab] = useState('gallery');
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', subtitle: '', image: '', desc: '', story: '', category: '' });
-
   // 动态数据挂载（安全读取）
   const [galleryItems, setGalleryItems] = useState(() => safeGetStorage('nuke_gallery_items', DEFAULT_GALLERY));
   const [collectionPhotos, setCollectionPhotos] = useState(() => safeGetStorage('nuke_collection_photos', DEFAULT_COLLECTION));
@@ -789,55 +780,6 @@ export default function App() {
   const handlePrevPhoto = () => { if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === 0 ? filteredPhotos.length - 1 : prev.index - 1 })); };
   const handleNextPhoto = () => { if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === filteredPhotos.length - 1 ? 0 : prev.index + 1 })); };
   const previewData = lightbox.type === 'gallery' ? lightbox.item : filteredPhotos[lightbox.index];
-
-  const handleAdminLogin = (e) => {
-    if (e) e.preventDefault(); 
-    if (adminPassword.trim() === '666') { 
-      setIsAdminAuthenticated(true); 
-      setLoginError(false); 
-      setAdminPassword(''); 
-    } else { 
-      setLoginError(true); 
-    }
-  };
-  const handleAdminLogout = () => { setIsAdminAuthenticated(false); setIsAdminOpen(false); };
-
-  const deleteGuestMessage = (id) => {
-    const updated = currentMessages.filter(item => item.id !== id);
-    setMessages(updated);
-    safeSetStorage('nuke_guest_messages', updated);
-  };
-  const startEditing = (item) => {
-    setEditingItemId(item.id);
-    setEditForm({ title: item.title||'', subtitle: item.subtitle||'', image: item.image||'', desc: item.desc||'', story: item.story||'', category: item.category||'' });
-  };
-  const saveGalleryEdit = (id) => {
-    const updated = currentGallery.map(item => item.id === id ? { ...item, ...editForm } : item);
-    setGalleryItems(updated);
-    safeSetStorage('nuke_gallery_items', updated);
-    setEditingItemId(null);
-  };
-  const saveCollectionEdit = (id) => {
-    const updated = currentCollection.map(item => item.id === id ? { ...item, ...editForm } : item);
-    setCollectionPhotos(updated);
-    safeSetStorage('nuke_collection_photos', updated);
-    setEditingItemId(null);
-  };
-  const addNewCollectionPhoto = () => {
-    const newPhoto = {
-      id: 'photo-' + Date.now(), title: "未命名瞬间", subtitle: "NEW SPARK", category: "安全与防护",
-      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=85", story: "在此编辑内容..."
-    };
-    const updated = [newPhoto, ...currentCollection];
-    setCollectionPhotos(updated);
-    safeSetStorage('nuke_collection_photos', updated);
-    startEditing(newPhoto);
-  };
-  const deleteCollectionPhoto = (id) => {
-    const updated = currentCollection.filter(item => item.id !== id);
-    setCollectionPhotos(updated);
-    safeSetStorage('nuke_collection_photos', updated);
-  };
 
   const scrollToAnchor = (id) => {
     const element = document.getElementById(id);
@@ -1573,172 +1515,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* ================= 管理员后台 ================= */}
-      {isAdminOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 md:p-8 select-none font-ui" style={{ animation: "fadeInBlur 0.6s forwards" }}>
-          <div className="absolute inset-0 bg-[#040a18]/95 backdrop-blur-lg cursor-pointer pointer-events-auto" onClick={() => setIsAdminOpen(false)}></div>
-          
-          <div className={`relative z-10 w-full ${isAdminAuthenticated ? 'max-w-4xl' : 'max-w-sm'} bg-[#07101d] border border-cyan-500/30 rounded-3xl p-6 md:p-8 shadow-[0_40px_120px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-hidden flex flex-col backdrop-blur-md transition-all duration-500`}>
-              
-              {!isAdminAuthenticated ? (
-                <form onSubmit={handleAdminLogin} className="flex flex-col items-center justify-center py-4 w-full text-center">
-                  <div className="relative">
-                    <LockIcon className="w-12 h-12 text-cyan-400 mb-6 relative z-10" />
-                    <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full animate-pulse"></div>
-                  </div>
-                  <h3 className="text-xl font-light tracking-widest text-white/95 mb-2 font-artistic drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">CORE MANAGEMENT</h3>
-                  <p className="text-[10px] tracking-[0.2em] text-cyan-100/50 uppercase mb-8 font-artistic">请输入管理员密码 (666)</p>
-                  <div className="w-full space-y-4 mb-8">
-                    <input 
-                      type="password" 
-                      value={adminPassword} 
-                      onChange={(e) => { setAdminPassword(e.target.value); setLoginError(false); }} 
-                      placeholder="Passcode..." 
-                      className={`w-full bg-black/40 text-center text-sm text-white border rounded-xl py-3.5 px-4 outline-none transition-colors ${loginError ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/10 focus:border-cyan-400/50 focus:bg-black/60'}`} 
-                    />
-                    {loginError && <p className="text-[9px] tracking-widest text-red-500 uppercase mt-2">Access Denied: 密码错误</p>}
-                  </div>
-                  <div className="flex gap-4 w-full">
-                    <button type="button" onClick={() => setIsAdminOpen(false)} className="flex-1 bg-white/[0.03] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 transition-all py-3.5 rounded-xl text-[10px] tracking-widest">取消</button>
-                    <button type="submit" onClick={handleAdminLogin} className="flex-1 bg-cyan-900/80 hover:bg-cyan-800 border border-cyan-500/40 hover:border-cyan-400/60 transition-all py-3.5 rounded-xl text-cyan-50 text-[10px] tracking-widest shadow-[0_0_15px_rgba(34,211,238,0.2)]">认证进入</button>
-                  </div>
-                </form>
-              ) : (
-                <div className="flex flex-col h-full overflow-hidden select-text animate-fade-in-blur">
-                  <div className="flex justify-between items-center border-b border-white/10 pb-5 mb-6 flex-shrink-0">
-                    <div>
-                      <h3 className="text-lg md:text-xl font-light tracking-widest text-cyan-300 font-artistic drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">内容多维控制台</h3>
-                      <p className="text-[9px] tracking-widest text-cyan-100/50 uppercase font-artistic">PERSISTENCE CLOUD CONFIGURATION</p>
-                    </div>
-                    <button onClick={handleAdminLogout} className="px-4 py-2 bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 rounded-xl text-[10px] tracking-widest text-red-200 font-light transition-all shrink-0 shadow-[0_0_10px_rgba(239,68,68,0.1)]">退出登录 ✕</button>
-                  </div>
-
-                  <div className="flex gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto select-none flex-shrink-0 font-artistic text-[10px] tracking-[0.2em]">
-                    {[{ id: 'gallery', label: 'GALLERY (知识画廊)' }, { id: 'collection', label: 'ALBUM (全景图集)' }, { id: 'guestbook', label: 'FORUM (寄语审核)' }].map(tab => (
-                      <button key={tab.id} onClick={() => { setAdminTab(tab.id); setEditingItemId(null); }} className={`px-5 py-2 rounded-xl transition-all shrink-0 ${adminTab === tab.id ? 'bg-cyan-900/40 border border-cyan-400/40 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'border border-transparent bg-white/[0.02] text-white/50 hover:bg-white/[0.05] hover:text-white/90'}`}>{tab.label}</button>
-                    ))}
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto pr-3 story-scrollbar space-y-6">
-                    {adminTab === 'gallery' && (
-                      <div className="space-y-4 font-ui">
-                        {currentGallery.map(item => (
-                          <div key={item.id} className="bg-black/20 border border-white/5 rounded-2xl p-5 flex flex-col md:flex-row gap-5 items-start">
-                            <img src={item.image} className="w-28 aspect-[16/10] object-cover rounded-xl border border-white/10 shadow-lg" alt="" />
-                            <div className="flex-1 w-full">
-                              {editingItemId === item.id ? (
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <input type="text" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} placeholder="主标题" className="bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                    <input type="text" value={editForm.subtitle} onChange={(e) => setEditForm({ ...editForm, subtitle: e.target.value })} placeholder="副标题" className="bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                  </div>
-                                  <input type="text" value={editForm.image} onChange={(e) => setEditForm({ ...editForm, image: e.target.value })} placeholder="图片链接 URL" className="w-full bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                  <textarea value={editForm.desc} onChange={(e) => setEditForm({ ...editForm, desc: e.target.value })} placeholder="细节描述" rows="3" className="w-full bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white resize-none outline-none focus:border-cyan-400/50" />
-                                  <div className="flex gap-2 justify-end">
-                                    <button onClick={() => setEditingItemId(null)} className="px-4 py-1.5 bg-white/5 border border-white/10 text-[10px] rounded-lg text-white/70 hover:bg-white/10 hover:text-white">取消</button>
-                                    <button onClick={() => saveGalleryEdit(item.id)} className="px-4 py-1.5 bg-cyan-700/80 border border-cyan-500/40 text-[10px] rounded-lg text-cyan-50 hover:bg-cyan-600">保存修改</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                      <h4 className="text-base font-light text-white font-artistic">{item.title}</h4>
-                                      <span className="text-[9px] text-cyan-400/80 tracking-wider font-light uppercase font-artistic block mt-1">{item.subtitle}</span>
-                                    </div>
-                                    <button onClick={() => startEditing(item)} className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center gap-1.5 text-[9px] text-white/70 hover:text-white select-none transition-colors">
-                                      <EditIcon className="w-3.5 h-3.5" /><span>编辑</span>
-                                    </button>
-                                  </div>
-                                  <p className="text-xs text-white/60 font-light line-clamp-2 leading-relaxed">{item.desc}</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {adminTab === 'collection' && (
-                      <div className="space-y-5">
-                        <div className="flex justify-end select-none">
-                          <button onClick={addNewCollectionPhoto} className="px-5 py-2.5 bg-cyan-900/60 border border-cyan-500/40 hover:bg-cyan-800 active:scale-95 text-[10px] tracking-widest rounded-xl flex items-center gap-2 transition-all text-cyan-50 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-                            <PlusIcon className="w-4 h-4" /><span>新增图文项</span>
-                          </button>
-                        </div>
-                        <div className="space-y-4">
-                          {currentCollection.map(photo => (
-                            <div key={photo.id} className="bg-black/20 border border-white/5 rounded-2xl p-5 flex flex-col md:flex-row gap-5 items-start font-ui">
-                              <img src={photo.image} className="w-28 aspect-[4/3] object-cover rounded-xl border border-white/10 shadow-lg" alt="" />
-                              <div className="flex-1 w-full">
-                                {editingItemId === photo.id ? (
-                                  <div className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                      <input type="text" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} placeholder="主标题" className="bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                      <input type="text" value={editForm.subtitle} onChange={(e) => setEditForm({ ...editForm, subtitle: e.target.value })} placeholder="副标题" className="bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                      <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} className="bg-zinc-900 border border-white/20 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50">
-                                        <option value="安全与防护">安全与防护</option>
-                                        <option value="技术应用">技术应用</option>
-                                        <option value="工业精神">工业精神</option>
-                                      </select>
-                                    </div>
-                                    <input type="text" value={editForm.image} onChange={(e) => setEditForm({ ...editForm, image: e.target.value })} placeholder="图片链接 URL" className="w-full bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white outline-none focus:border-cyan-400/50" />
-                                    <textarea value={editForm.story} onChange={(e) => setEditForm({ ...editForm, story: e.target.value })} placeholder="科普内容" rows="3" className="w-full bg-black/50 border border-white/10 text-xs p-2.5 rounded-lg text-white resize-none outline-none focus:border-cyan-400/50" />
-                                    <div className="flex gap-2 justify-end">
-                                      <button onClick={() => setEditingItemId(null)} className="px-4 py-1.5 bg-white/5 border border-white/10 text-[10px] rounded-lg text-white/70 hover:bg-white/10 hover:text-white">取消</button>
-                                      <button onClick={() => saveCollectionEdit(photo.id)} className="px-4 py-1.5 bg-cyan-900/60 border border-cyan-500/40 text-[10px] rounded-lg text-cyan-50 hover:bg-cyan-800">保存修改</button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div>
-                                    <div className="flex justify-between items-start mb-3">
-                                      <div>
-                                        <h4 className="text-base font-light text-white font-artistic">{photo.title}</h4>
-                                        <span className="inline-block px-2 py-1 bg-cyan-950/60 border border-cyan-500/20 text-[9px] text-cyan-200 rounded-md uppercase tracking-wider font-light mt-2 font-artistic">{photo.category} · {photo.subtitle}</span>
-                                      </div>
-                                      <div className="flex gap-2 select-none">
-                                        <button onClick={() => startEditing(photo)} className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center gap-1.5 text-[9px] text-white/70 hover:text-white transition-colors"><EditIcon className="w-3.5 h-3.5" /><span>编辑</span></button>
-                                        <button onClick={() => deleteCollectionPhoto(photo.id)} className="p-2 bg-red-950/30 hover:bg-red-900/50 border border-red-500/20 rounded-lg flex items-center gap-1.5 text-[9px] text-red-300/80 hover:text-red-200 transition-colors"><TrashIcon className="w-3.5 h-3.5" /></button>
-                                      </div>
-                                    </div>
-                                    <p className="text-xs text-white/60 font-light line-clamp-2 leading-relaxed italic">"{photo.story}"</p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {adminTab === 'guestbook' && (
-                      <div className="space-y-4">
-                        <div className="border border-cyan-500/20 rounded-xl bg-cyan-950/20 p-4 text-[11px] font-light tracking-wide text-cyan-100/70 mb-4 select-none">您可以直接删除不合规言论，更改会实时同步到本地存储。</div>
-                        {currentMessages.length === 0 ? (
-                          <div className="text-center py-16 text-xs font-light text-white/30 tracking-widest bg-black/20 rounded-2xl border border-white/5">暂无寄语可以审核</div>
-                        ) : (
-                          currentMessages.map(msg => (
-                            <div key={msg.id} className="bg-black/30 border border-white/5 p-5 rounded-2xl flex items-start justify-between gap-6 font-ui hover:border-white/10 transition-colors">
-                              <div className="flex-1">
-                                <div className="flex gap-4 items-center mb-2">
-                                  <span className="text-sm font-light text-cyan-300 font-artistic">{msg.name}</span>
-                                  <span className="text-[9px] text-white/30 font-mono">{msg.time}</span>
-                                </div>
-                                <p className="text-xs font-light text-white/70 leading-relaxed">{msg.text}</p>
-                              </div>
-                              <button onClick={() => deleteGuestMessage(msg.id)} className="p-2.5 bg-red-950/20 hover:bg-red-900/50 border border-red-500/20 hover:border-red-500/40 rounded-xl text-red-300 hover:text-red-200 transition-all select-none" title="删除此言论"><TrashIcon className="w-4 h-4" /></button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-          </div>
-        </div>
-      )}
-
       {/* 回到顶部按钮 */}
       <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 right-6 md:right-12 z-[100] flex items-center justify-center w-12 h-12 rounded-full bg-cyan-950/80 backdrop-blur-xl border border-cyan-500/40 hover:bg-cyan-900 hover:border-cyan-400 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] ${showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-6 pointer-events-none'}`}>
         <ChevronDownIcon className="w-5 h-5 text-cyan-300 transform rotate-180" />
@@ -1762,11 +1538,6 @@ export default function App() {
           <ImageIcon className="w-4 h-4 hover:text-cyan-400 transition-colors cursor-pointer" />
           <FilmIcon className="w-4 h-4 hover:text-cyan-400 transition-colors cursor-pointer" />
           <CameraIcon className="w-4 h-4 hover:text-cyan-400 transition-colors cursor-pointer" />
-        </div>
-        <div className="mb-6 font-ui">
-          <button onClick={() => setIsAdminOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/5 hover:bg-cyan-900/30 hover:border-cyan-500/30 text-[9px] text-white/40 hover:text-cyan-200 rounded-lg transition-all tracking-widest uppercase shadow-sm">
-            <SettingsIcon className="w-3 h-3" /><span>ADMIN PORTAL (密码: 666)</span>
-          </button>
         </div>
         <div className="text-[10px] tracking-[0.4em] text-white/20 uppercase font-light mb-4">© {new Date().getFullYear()} SCIENCE & ART. EXPLORE THE UNKNOWN.</div>
         <div className="text-[8px] tracking-[0.2em] text-white/10 font-light font-ui">本作品使用了 AI 辅助创作</div>
