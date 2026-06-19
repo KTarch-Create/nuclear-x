@@ -511,7 +511,7 @@ const DEFAULT_GALLERY = [
   }
 ];
 
-const DEFAULT_COLLECTION = [
+const DEFAULT_MESSAGES = [
   { id: 101, name: "青年学者", text: "探讨和畅想是非常必要的。核能不仅仅是硬核技术，更是关乎人类命运共同体的重大议题，期待论坛中能看到更多有趣的观点！", time: "2026-06-15 19:42" },
   { id: 102, name: "未来探索者", text: "极具质感的设计让人能沉下心来阅读硬核的科普内容。非常期待第四代反应堆的商业化应用，清洁能源普及指日可待！", time: "2026-06-16 09:15" }
 ];
@@ -692,7 +692,7 @@ export default function App() {
       clearTimeout(timer); 
       clearTimeout(observeTimer);
     };
-  }, [currentGallery, currentCollection]);
+  }, [currentGallery]);
 
   // ================= 开幕标题卡自动消失 =================
   useEffect(() => {
