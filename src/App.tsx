@@ -529,7 +529,8 @@ const DEFAULT_MESSAGES = [
 function SpiritSection({ setIsStoryOpen }) {
   const refs = useRef([]);
   const addToRefs = (el) => { if (el && !refs.current.includes(el)) refs.current.push(el); };
-  const base = import.meta.env.BASE_URL || '';
+  // 运行时检测 base path，兼容 GitHub Pages 和本地开发
+  const base = (typeof window !== 'undefined' && window.location.pathname.startsWith('/nuclear-x/')) ? '/nuclear-x/' : '/';
   const stories = [
     { num: '01', title: '"两弹一星"精神永放光芒', img: 'stories/image1.png', desc: '1999年9月18日，在庆祝中华人民共和国成立50周年之际，党中央、国务院、中央军委隆重表彰为研制"两弹一星"作出突出贡献的23位科技专家，首次将这一伟大壮举背后的精神品格概括为"两弹一星"精神。' },
     { num: '02', title: '王淦昌三次"我愿意"', img: 'stories/image2.png', desc: '王淦昌（1912-1994），1956年放弃在国外的事业回到祖国。钱三强问他能否转行搞原子能，他斩钉截铁回答"我愿意。"此后两次面对国家召唤，他始终以"我愿意"回应，用三个"我愿意"书写了一位科学家的绝对忠诚。' },
