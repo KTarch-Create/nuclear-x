@@ -1083,7 +1083,7 @@ export default function App() {
           <span>NUCLEAR.ART</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden md:block text-[7px] tracking-[0.15em] text-white/15 font-light">第十一届高校学生课外"核+X"创意大赛 · 重庆理工大学 · 核光纪元</span>
+          <span className="hidden md:block text-[7px] tracking-[0.15em] text-white/15 font-light">核聚科普星火，科创燃动未来</span>
           <button
             onClick={() => setIsAnnounceOpen(true)}
             className="px-5 py-2.5 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-900/60 active:scale-95 rounded-full transition-all duration-300 text-[10px] tracking-[0.2em] font-light text-cyan-50 shadow-[0_0_15px_rgba(34,211,238,0.15)] pointer-events-auto"
