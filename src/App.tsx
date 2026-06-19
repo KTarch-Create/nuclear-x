@@ -59,6 +59,15 @@ async function writeGitHubFile(path, content, commitMsg, sha) {
   if (!res.ok) throw new Error(`GitHub PUT failed: ${res.status}`);
 }
 
+// ================= SHA-256 哈希函数 =================
+async function sha256(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // ================= 轻量级原生 SVG 图标组件 =================
 const FilmIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18" /><line x1="7" x2="7" y1="2" y2="22" /><line x1="17" x2="17" y1="2" y2="22" /><line x1="2" x2="22" y1="12" y2="12" /><line x1="2" x2="7" y1="7" y2="7" /><line x1="2" x2="7" y1="17" y2="17" /><line x1="17" x2="22" y1="7" y2="7" /><line x1="17" x2="22" y1="17" y2="17" /></svg>);
 const CameraIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>);
@@ -650,6 +659,21 @@ export default function App() {
   // 动态数据挂载（安全读取）
   const [galleryItems, setGalleryItems] = useState(() => safeGetStorage('nuke_gallery_items', DEFAULT_GALLERY));
   const [messages, setMessages] = useState(() => safeGetStorage('nuke_guest_messages', DEFAULT_MESSAGES));
+  const [siteContent, setSiteContent] = useState(null);
+  const [editingContent, setEditingContent] = useState(null);
+
+  // 管理员后台状态
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [adminTab, setAdminTab] = useState('texts');
+  const [adminSaveStatus, setAdminSaveStatus] = useState('');
+  // 密码修改状态
+  const [secOldPw, setSecOldPw] = useState('');
+  const [secNewPw, setSecNewPw] = useState('');
+  const [secConfirmPw, setSecConfirmPw] = useState('');
+  const [secStatus, setSecStatus] = useState('');
 
   const [lightbox, setLightbox] = useState({ isOpen: false, isActive: false, type: null, item: null, index: null });
 
@@ -711,6 +735,105 @@ export default function App() {
     setTimeout(() => setSyncStatus(''), 3000);
   };
 
+  // ================= 管理员后台方法 =================
+  const loadSiteContent = async () => {
+    try {
+      const { content } = await getGitHubFile('site-content.json');
+      setSiteContent(content);
+      setEditingContent(content);
+    } catch (e) {
+      console.warn('Failed to load site content');
+    }
+  };
+
+  const handleAdminLogin = async () => {
+    try {
+      const { content: config } = await getGitHubFile('admin-config.json');
+      const inputHash = await sha256(adminPassword);
+      const valid = inputHash === (config.passwordHash || '');
+      if (valid) {
+        setIsAdminAuthenticated(true);
+        setLoginError('');
+        setAdminPassword('');
+        loadSiteContent();
+      } else {
+        setLoginError('密码错误');
+      }
+    } catch (e) {
+      // Fallback to default password
+      const inputHash = await sha256(adminPassword);
+      const defaultHash = 'c7e616822f366fb1b5e0756af498cc11d2c0862edcb32ca65882f622ff39de1b';
+      if (inputHash === defaultHash) {
+        setIsAdminAuthenticated(true);
+        setLoginError('');
+        setAdminPassword('');
+        loadSiteContent();
+      } else {
+        setLoginError('密码错误');
+      }
+    }
+  };
+
+  const saveSiteContent = async () => {
+    if (!editingContent) return;
+    setAdminSaveStatus('保存中...');
+    try {
+      const { sha } = await getGitHubFile('site-content.json');
+      await writeGitHubFile('site-content.json', editingContent, '更新页面文本', sha);
+      setSiteContent(editingContent);
+      setAdminSaveStatus('已保存');
+    } catch (e) {
+      setAdminSaveStatus('保存失败');
+    }
+    setTimeout(() => setAdminSaveStatus(''), 3000);
+  };
+
+  const deleteMessage = async (id) => {
+    const updated = currentMessages.filter(m => m.id !== id);
+    setMessages(updated);
+    safeSetStorage('nuke_guest_messages', updated);
+    try {
+      const { sha } = await getGitHubFile(MESSAGES_PATH);
+      await writeGitHubFile(MESSAGES_PATH, updated, `管理员删除留言 (ID: ${id})`, sha);
+    } catch (e) {
+      console.warn('Delete sync failed:', e);
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    setAdminPassword('');
+    setLoginError('');
+    setAdminTab('texts');
+  };
+
+  const handleChangePassword = async (oldPw, newPw) => {
+    const oldHash = await sha256(oldPw);
+    const { content: config, sha } = await getGitHubFile('admin-config.json');
+    if (oldHash !== config.passwordHash) return '旧密码错误';
+    const newHash = await sha256(newPw);
+    config.passwordHash = newHash;
+    await writeGitHubFile('admin-config.json', config, '修改管理员密码', sha);
+    return '密码修改成功';
+  };
+
+  const handleSecurityChange = async () => {
+    if (!secOldPw || !secNewPw) { setSecStatus('请填写完整'); return; }
+    if (secNewPw.length < 4) { setSecStatus('新密码至少4位'); return; }
+    if (secNewPw !== secConfirmPw) { setSecStatus('两次输入不一致'); return; }
+    setSecStatus('');
+    try {
+      const oldHash = await sha256(secOldPw);
+      const { content: config, sha } = await getGitHubFile('admin-config.json');
+      if (oldHash !== config.passwordHash) { setSecStatus('旧密码错误'); return; }
+      config.passwordHash = await sha256(secNewPw);
+      await writeGitHubFile('admin-config.json', config, '修改管理员密码', sha);
+      setSecStatus('密码修改成功 ✅');
+      setSecOldPw(''); setSecNewPw(''); setSecConfirmPw('');
+    } catch (e) {
+      setSecStatus('操作失败: ' + e.message);
+    }
+  };
   const revealRefs = useRef([]);
   const addToRefs = (el) => {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el);
@@ -1750,7 +1873,128 @@ export default function App() {
         <div className="text-[10px] tracking-[0.4em] text-white/20 uppercase font-light mb-4">© {new Date().getFullYear()} SCIENCE & ART. EXPLORE THE UNKNOWN.</div>
         <div className="text-[8px] tracking-[0.2em] text-white/10 font-light font-ui">本作品使用了 AI 辅助创作</div>
       </footer>
+
+      {/* ================= 管理员后台按钮 ================= */}
+      <button onClick={() => setIsAdminOpen(true)} className="fixed bottom-6 left-6 z-[100] p-3 rounded-full bg-cyan-950/80 backdrop-blur-xl border border-cyan-500/30 hover:bg-cyan-900 hover:border-cyan-400 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] opacity-60 hover:opacity-100">
+        <SettingsIcon className="w-5 h-5 text-cyan-300" />
+      </button>
+
+      {/* ================= 管理员登录弹窗 ================= */}
+      <div className={`fixed inset-0 z-[300] flex items-center justify-center p-4 transition-all duration-500 ${isAdminOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-[#040a18]/90 backdrop-blur-md" onClick={() => { setIsAdminOpen(false); setLoginError(''); }}></div>
+        {!isAdminAuthenticated ? (
+          <div className="relative w-full max-w-sm bg-[#0a101d] border border-cyan-500/20 rounded-3xl p-8 shadow-[0_40px_120px_rgba(0,0,0,0.8)] backdrop-blur-md">
+            <div className="text-center mb-6">
+              <SettingsIcon className="w-10 h-10 text-cyan-400 mx-auto mb-3" />
+              <h3 className="text-lg font-light tracking-widest text-white/90 font-artistic">管理员登录</h3>
+              <p className="text-[10px] text-white/40 mt-2 font-ui tracking-wider">请输入管理密码</p>
+            </div>
+            <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAdminLogin()} placeholder="输入密码..." className="w-full bg-[#040a18]/60 text-sm text-white/90 placeholder:text-white/20 font-light border border-white/10 rounded-xl py-3.5 px-4 outline-none focus:border-cyan-500/50 transition-all mb-4 font-ui" />
+            {loginError && <p className="text-[10px] text-red-400 text-center mb-4 font-ui">{loginError}</p>}
+            <div className="flex gap-3">
+              <button onClick={() => { setIsAdminOpen(false); setLoginError(''); }} className="flex-1 py-3 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-[10px] tracking-widest text-white/60 hover:text-white transition-all font-ui">取消</button>
+              <button onClick={handleAdminLogin} className="flex-1 py-3 bg-cyan-700/80 hover:bg-cyan-600 border border-cyan-500/40 rounded-xl text-[10px] tracking-widest text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all font-ui">登录</button>
+            </div>
+          </div>
+        ) : (
+          <div className="relative w-full max-w-2xl max-h-[70vh] bg-[#0a101d] border border-cyan-500/20 rounded-3xl shadow-[0_40px_120px_rgba(0,0,0,0.8)] backdrop-blur-md overflow-hidden flex flex-col">
+            {/* 管理员面板头部 */}
+            <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-3">
+                <SettingsIcon className="w-4 h-4 text-cyan-400" />
+                <span className="text-[10px] tracking-[0.3em] text-white/60 font-light font-artistic">CONTROL PANEL</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={handleAdminLogout} className="px-4 py-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-[9px] tracking-widest text-white/50 hover:text-white transition-all font-ui">退出</button>
+                <button onClick={() => { setIsAdminOpen(false); }} className="p-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-white/50 hover:text-white transition-all"><CloseIcon className="w-4 h-4" /></button>
+              </div>
+            </div>
+            {/* 管理员面板Tab栏 */}
+            <div className="flex border-b border-white/5 shrink-0">
+              {[{id:'texts',label:'页面文本'},{id:'messages',label:'留言管理'},{id:'security',label:'安全设置'}].map(tab => (
+                <button key={tab.id} onClick={() => setAdminTab(tab.id)} className={`flex-1 py-3 text-[10px] tracking-widest font-light transition-all font-ui ${adminTab === tab.id ? 'text-cyan-300 border-b-2 border-cyan-500 bg-cyan-900/10' : 'text-white/40 hover:text-white/70'}`}>{tab.label}</button>
+              ))}
+            </div>
+            {/* 管理员面板内容 */}
+            <div className="flex-1 overflow-y-auto p-5 story-scrollbar">
+              {adminTab === 'texts' && editingContent && (
+                <div className="space-y-6 text-[11px]">
+                  <p className="text-[9px] text-cyan-400/50 tracking-wider font-ui mb-4">修改页面文本后点击"保存到 GitHub"生效，所有访客将在30秒内看到更新。</p>
+                  {Object.entries(editingContent).map(([sectionKey, section]) => (
+                    <div key={sectionKey} className="border border-white/[0.06] rounded-2xl p-4 space-y-3">
+                      <div className="text-[9px] tracking-widest text-cyan-400/60 uppercase font-artistic">{sectionKey.toUpperCase()}</div>
+                      {Object.entries(section).map(([fieldKey, value]) => {
+                        if (fieldKey === 'cards') return null;
+                        const fieldPath = `${sectionKey}.${fieldKey}`;
+                        const contentStr = String(value || '');
+                        const isLong = contentStr.length > 80;
+                        return (
+                          <div key={fieldPath} className="space-y-1">
+                            <label className="text-[8px] text-white/30 uppercase tracking-wider font-ui">{fieldKey}</label>
+                            {isLong ? (
+                              <textarea value={contentStr} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey][fieldKey] = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui resize-none" rows={4} />
+                            ) : (
+                              <input value={contentStr} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey][fieldKey] = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui" />
+                            )}
+                          </div>
+                        );
+                      })}
+                      {/* SECT 5 卡片管理 */}
+                      {section.cards && section.cards.map((card, ci) => (
+                        <div key={ci} className="border border-cyan-500/10 rounded-xl p-3 space-y-2">
+                          <span className="text-[8px] text-cyan-400/50 uppercase tracking-wider font-ui">卡片 {ci + 1}</span>
+                          <input value={card.title} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey].cards[ci].title = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui" />
+                          <textarea value={card.text} onChange={e => { const copy = JSON.parse(JSON.stringify(editingContent)); copy[sectionKey].cards[ci].text = e.target.value; setEditingContent(copy); }} className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 transition-all font-ui resize-none" rows={3} />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-3 pt-2">
+                    <button onClick={saveSiteContent} className="px-6 py-3 bg-cyan-700/80 hover:bg-cyan-600 border border-cyan-500/40 rounded-xl text-[10px] tracking-widest text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all font-ui">保存到 GitHub</button>
+                    {adminSaveStatus && <span className="text-[9px] text-cyan-400/60 font-ui">{adminSaveStatus}</span>}
+                    <button onClick={() => setEditingContent(JSON.parse(JSON.stringify(siteContent)))} className="px-4 py-3 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] rounded-xl text-[9px] tracking-widest text-white/50 hover:text-white transition-all font-ui">重置</button>
+                  </div>
+                </div>
+              )}
+              {adminTab === 'messages' && (
+                <div className="space-y-3">
+                  <p className="text-[9px] text-white/30 tracking-wider font-ui mb-3">共 {currentMessages.length} 条留言 · 点击删除按钮可移除留言</p>
+                  {currentMessages.length === 0 ? (
+                    <div className="py-12 text-xs text-white/30 text-center font-light">暂无留言</div>
+                  ) : (
+                    currentMessages.map(msg => (
+                      <div key={msg.id} className="flex items-start justify-between bg-white/[0.02] border border-white/[0.05] rounded-xl p-4 gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-[11px] text-cyan-300 font-light tracking-widest">{msg.name}</span>
+                            <span className="text-[8px] text-white/20 font-ui">{msg.time}</span>
+                          </div>
+                          <p className="text-[10px] text-white/60 font-light leading-relaxed">{msg.text}</p>
+                        </div>
+                        <button onClick={() => { if (confirm('确定删除此留言？')) deleteMessage(msg.id); }} className="p-2 bg-red-900/20 border border-red-500/20 hover:bg-red-900/40 rounded-lg text-red-400/60 hover:text-red-400 transition-all shrink-0"><TrashIcon className="w-3.5 h-3.5" /></button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              {adminTab === 'security' && (
+                <div className="space-y-4 text-[11px]">
+                  <div className="border border-cyan-500/20 rounded-2xl p-5 space-y-4">
+                    <h4 className="text-[10px] tracking-widest text-cyan-300/80 font-artistic">修改管理员密码</h4>
+                    <input type="password" value={secOldPw} onChange={e => setSecOldPw(e.target.value)} placeholder="当前密码" className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 font-ui" />
+                    <input type="password" value={secNewPw} onChange={e => setSecNewPw(e.target.value)} placeholder="新密码（至少4位）" className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 font-ui" />
+                    <input type="password" value={secConfirmPw} onChange={e => setSecConfirmPw(e.target.value)} placeholder="确认新密码" className="w-full bg-[#040a18]/60 text-white/80 text-[10px] border border-white/10 rounded-xl p-3 outline-none focus:border-cyan-500/50 font-ui" />
+                    {secStatus && <p className={`text-[9px] font-ui ${secStatus.includes('✅') ? 'text-green-400' : secStatus.includes('失败') ? 'text-red-400' : 'text-yellow-400'}`}>{secStatus}</p>}
+                    <button onClick={handleSecurityChange} className="px-6 py-3 bg-cyan-700/80 hover:bg-cyan-600 border border-cyan-500/40 rounded-xl text-[10px] tracking-widest text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all font-ui">修改密码</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
     </>
   );
 }
+
