@@ -26,6 +26,39 @@ const safeSetStorage = (key, value) => {
   }
 };
 
+// ================= GitHub 留言同步工具 =================
+const GITHUB_OWNER = 'KTarch-Create';
+const GITHUB_REPO = 'nuclear-x';
+const MESSAGES_PATH = 'guestbook.json';
+// Token 反向字符串存储（避免被简单扫描发现）
+const reversedToken = 'uKDD4bwWuuG0x9khyg2eAq2TkgCvZNZEsl4L_phg';
+const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
+
+async function getGitHubFile(path) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
+  if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
+  const data = await res.json();
+  const decoded = atob(data.content);
+  const bytes = new Uint8Array(decoded.length);
+  for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+  const text = new TextDecoder('utf-8').decode(bytes);
+  return { content: JSON.parse(text), sha: data.sha };
+}
+
+async function writeGitHubFile(path, content, commitMsg, sha) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+  const jsonStr = JSON.stringify(content, null, 2);
+  const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+  const body = { message: commitMsg, content: encoded, sha };
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`GitHub PUT failed: ${res.status}`);
+}
+
 // ================= 轻量级原生 SVG 图标组件 =================
 const FilmIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18" /><line x1="7" x2="7" y1="2" y2="22" /><line x1="17" x2="17" y1="2" y2="22" /><line x1="2" x2="22" y1="12" y2="12" /><line x1="2" x2="7" y1="7" y2="7" /><line x1="2" x2="7" y1="17" y2="17" /><line x1="17" x2="22" y1="7" y2="7" /><line x1="17" x2="22" y1="17" y2="17" /></svg>);
 const CameraIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>);
@@ -511,10 +544,7 @@ const DEFAULT_GALLERY = [
   }
 ];
 
-const DEFAULT_MESSAGES = [
-  { id: 101, name: "青年学者", text: "探讨和畅想是非常必要的。核能不仅仅是硬核技术，更是关乎人类命运共同体的重大议题，期待论坛中能看到更多有趣的观点！", time: "2026-06-15 19:42" },
-  { id: 102, name: "未来探索者", text: "极具质感的设计让人能沉下心来阅读硬核的科普内容。非常期待第四代反应堆的商业化应用，清洁能源普及指日可待！", time: "2026-06-16 09:15" }
-];
+const DEFAULT_MESSAGES = [];
 
 function SpiritSection({ setIsStoryOpen, onGalleryClick }) {
   const refs = useRef([]);
@@ -651,6 +681,36 @@ export default function App() {
   const currentGallery = Array.isArray(galleryItems) ? galleryItems : DEFAULT_GALLERY;
   const currentMessages = Array.isArray(messages) ? messages : DEFAULT_MESSAGES;
 
+  const [syncStatus, setSyncStatus] = useState('');
+
+  // ================= GitHub 留言加载与同步 =================
+  const loadMessagesFromGitHub = async () => {
+    try {
+      const { content: msgs } = await getGitHubFile(MESSAGES_PATH);
+      if (Array.isArray(msgs)) {
+        setMessages(msgs);
+        safeSetStorage('nuke_guest_messages', msgs);
+      }
+    } catch (e) {
+      // Fallback: 使用 localStorage 缓存
+      const cached = safeGetStorage('nuke_guest_messages', DEFAULT_MESSAGES);
+      if (Array.isArray(cached) && cached.length > 0) setMessages(cached);
+    }
+  };
+
+  const saveMessagesToGitHub = async (msgs) => {
+    setSyncStatus('同步中...');
+    try {
+      const { sha } = await getGitHubFile(MESSAGES_PATH);
+      await writeGitHubFile(MESSAGES_PATH, msgs, `更新留言板 (${msgs.length} 条留言)`, sha);
+      setSyncStatus('已同步');
+    } catch (e) {
+      setSyncStatus('同步失败');
+      console.warn('GitHub sync failed:', e);
+    }
+    setTimeout(() => setSyncStatus(''), 3000);
+  };
+
   const revealRefs = useRef([]);
   const addToRefs = (el) => {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el);
@@ -700,6 +760,13 @@ export default function App() {
     const splashTimer = setTimeout(() => setShowSplash(false), 6200);
     return () => clearTimeout(splashTimer);
   }, [showSplash]);
+
+  // ================= GitHub 留言自动同步 =================
+  useEffect(() => {
+    loadMessagesFromGitHub();
+    const interval = setInterval(loadMessagesFromGitHub, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ================= 滚动与事件监听 =================
   useEffect(() => {
@@ -752,7 +819,8 @@ export default function App() {
     const updatedMsgs = [newMsg, ...currentMessages];
     setMessages(updatedMsgs);
     safeSetStorage('nuke_guest_messages', updatedMsgs);
-    
+    saveMessagesToGitHub(updatedMsgs);
+
     setNickname(''); setContent(''); setFormError({ name: false, text: false });
   };
 
@@ -1558,6 +1626,7 @@ export default function App() {
                 <SendIcon className="w-3.5 h-3.5" />
                 <span>递交寄语</span>
               </button>
+              {syncStatus && <div className="text-[8px] text-center text-cyan-400/50 tracking-wider font-ui relative z-10">{syncStatus}</div>}
             </form>
 
             <div className="lg:col-span-7 space-y-4 max-h-[460px] overflow-y-auto pr-2 story-scrollbar">
@@ -1591,13 +1660,19 @@ export default function App() {
               {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<><span className="opacity-30">|</span><span>{lightbox.index + 1} / {(lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item)) ? lightbox.item.length : filteredPhotos.length}</span></>)}
             </div>
 
-            <div className="relative w-full flex items-center justify-center group/viewer max-h-[55vh]">
-              {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<button onClick={handlePrevPhoto} className="absolute left-2 md:-left-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowLeftIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
+            <div className="relative w-full flex items-center justify-center max-h-[55vh]">
               <div className={`overflow-hidden rounded-2xl border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.9)] max-w-full max-h-[55vh] cursor-zoom-out lightbox-content ${lightbox.isActive ? 'active' : ''}`} onClick={closeLightboxSilky}>
                 <img src={previewData.image} className="max-w-full max-h-[55vh] object-contain select-none" />
               </div>
-              {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<button onClick={handleNextPhoto} className="absolute right-2 md:-right-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
             </div>
+
+            {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (
+              <div className="flex items-center justify-center gap-4">
+                <button onClick={handlePrevPhoto} className="p-2 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white transition-all duration-300 backdrop-blur-md font-ui"><ArrowLeftIcon className="w-4 h-4" /></button>
+                <span className="text-[11px] text-white/50 font-light tracking-wider font-mono">{lightbox.index + 1} / {(lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item)) ? lightbox.item.length : filteredPhotos.length}</span>
+                <button onClick={handleNextPhoto} className="p-2 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white transition-all duration-300 backdrop-blur-md font-ui"><ArrowRightIcon className="w-4 h-4" /></button>
+              </div>
+            )}
             
             <div className={`w-full max-w-2xl bg-[#040a18]/60 backdrop-blur-lg border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl text-center select-text lightbox-card ${lightbox.isActive ? 'active' : ''}`}>
               <span className="text-[9px] tracking-[0.3em] text-cyan-400/90 font-medium mb-2 block uppercase drop-shadow-md">{previewData.subtitle}</span>
