@@ -561,7 +561,7 @@ function SpiritSection({ setIsStoryOpen, onGalleryClick }) {
       <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
         {stories.map((story, idx) => (
           <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl transition-all duration-500 hover:-translate-y-0.5 group`}>
-            {story.img.length > 0 && <div className={`w-full lg:w-auto lg:max-w-[35%] bg-[#0a101d] ${idx % 2 === 0 ? 'rounded-l-2xl' : 'rounded-r-2xl'} overflow-hidden shrink-0 relative cursor-pointer group/img`} onClick={() => {
+            {story.img.length > 0 && <div className={`w-full lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] bg-[#0a101d] ${idx % 2 === 0 ? 'rounded-l-2xl' : 'rounded-r-2xl'} overflow-hidden shrink-0 relative cursor-pointer group/img`} onClick={() => {
               if (onGalleryClick) onGalleryClick(story.img, base);
             }}>
               <img src={base + story.img[0]} alt={story.title} loading="lazy" className="w-full h-[200px] md:h-[260px] object-cover" />
