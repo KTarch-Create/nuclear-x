@@ -577,11 +577,11 @@ function SpiritSection({ setIsStoryOpen, onGalleryClick, siteContent }) {
       <div className="text-center mb-16 reveal-section" ref={addToRefs}>
         <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/30 border border-cyan-500/30 shadow-sm backdrop-blur-md">
           <FilmIcon className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[9px] tracking-[0.3em] text-cyan-100/90 uppercase">SECT 4. 精神文化</span>
+          <span className="text-[9px] tracking-[0.3em] text-cyan-100/90 uppercase">{siteContent?.sect4?.label || 'SECT 4. 精神文化'}</span>
         </div>
-        <h2 className="text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">星辰大海的征途</h2>
+        <h2 className="text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">{siteContent?.sect4?.title || '星辰大海的征途'}</h2>
         <p className="text-xs md:text-sm text-white/60 max-w-3xl mx-auto tracking-widest leading-loose">
-          "两弹一星"精神、核潜艇精神，一代代核工业人隐姓埋名，用青春与热血铸就了共和国的钢铁脊梁。从戈壁荒漠到高原深处，十段感人至深的故事，带你走进中国核工业的精神殿堂。
+          {siteContent?.sect4?.desc || '"两弹一星"精神、核潜艇精神，一代代核工业人隐姓埋名，用青春与热血铸就了共和国的钢铁脊梁。从戈壁荒漠到高原深处，十段感人至深的故事，带你走进中国核工业的精神殿堂。'}
         </p>
         <button onClick={() => setIsStoryOpen(true)} className="mt-8 px-8 py-4 bg-cyan-700/80 hover:bg-cyan-600 active:scale-95 rounded-full text-[10px] md:text-xs text-white tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] backdrop-blur-md">
           {siteContent?.sect4?.storyButton || '沉浸式阅读：十段光辉纪实'}
@@ -1214,11 +1214,11 @@ export default function App() {
           <div className="text-center mb-20 md:mb-32 reveal-section" ref={addToRefs}>
             <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <CameraIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 1. 核能知识</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">{siteContent?.sect1?.label || 'SECT 1. 核能知识'}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white mb-6">核能知识的微观宇宙</h2>
+            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white mb-6">{siteContent?.sect1?.title || '核能知识的微观宇宙'}</h2>
             <p className="text-xs md:text-sm font-light text-white/50 leading-relaxed max-w-2xl mx-auto tracking-widest italic">
-              "科学的边界，是对未知的无畏探索；<br className="md:hidden" />核能的真谛，是造福人类的无尽光芒。"
+              {(siteContent?.sect1?.quote || '"科学的边界，是对未知的无畏探索；核能的真谛，是造福人类的无尽光芒。"').replace('<br/>', '')}
             </p>
           </div>
           <div className="flex flex-col gap-24 md:gap-40">
@@ -1379,9 +1379,9 @@ export default function App() {
           <div className="text-center mb-20 md:mb-32 reveal-section" ref={addToRefs}>
              <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <CompassIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 2. 核技术应用</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">{siteContent?.sect2?.label || 'SECT 2. 核技术应用'}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">核技术的跨界造福</h2>
+            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">{siteContent?.sect2?.title || '核技术的跨界造福'}</h2>
           </div>
           <div className="flex flex-col gap-24 md:gap-40">
             {currentGallery.slice(2, 4).map((item, index) => (
@@ -1483,10 +1483,10 @@ export default function App() {
            <div className="text-center mb-16 md:mb-20 reveal-section" ref={addToRefs}>
              <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <LockIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 3. 辐射安全</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">{siteContent?.sect3?.label || 'SECT 3. 辐射安全'}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">防护的科学法则</h2>
-            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">摒弃未知带来的恐惧，用科学法则构建坚不可摧的防线。</p>
+            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">{siteContent?.sect3?.title || '防护的科学法则'}</h2>
+            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">{siteContent?.sect3?.desc || '摒弃未知带来的恐惧，用科学法则构建坚不可摧的防线。'}</p>
           </div>
 
           {/* 辐射屏蔽模拟测试仪 */}
@@ -1664,45 +1664,27 @@ export default function App() {
           <div className="text-center mb-16 reveal-section" ref={addToRefs}>
             <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <LockIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 5. 政策法规</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">{siteContent?.sect5?.label || 'SECT 5. 政策法规'}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">政策法规与国家安全</h2>
-            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">知法懂法，从国家战略高度理解核安全与核发展的深刻内涵</p>
+            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">{siteContent?.sect5?.title || '政策法规与国家安全'}</h2>
+            <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">{siteContent?.sect5?.desc || '知法懂法，从国家战略高度理解核安全与核发展的深刻内涵'}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 reveal-section" ref={addToRefs}>
-            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] hover:border-cyan-500/30 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-5 group">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-light text-cyan-400/50">01</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+            {(siteContent?.sect5?.cards || [
+              {title:'《中华人民共和国原子能法》',text:'2024年颁布的《原子能法》是我国原子能领域的基础性法律。该法明确了原子能事业"安全第一、保护环境、保障公众健康"的基本原则，确立了核安全监管体制和放射性废物管理体系，为我国核能和平利用与核技术应用提供了坚实的法律保障，标志着我国原子能事业进入法治化新阶段。'},
+              {title:'总体国家安全观与核安全观',text:'总体国家安全观涵盖政治、军事、经济、科技、核安全等十余个领域。核安全观的核心内涵为"理性、协调、并进"——理性认识核安全风险，协调统筹发展与安全，推动核安全事业与核能事业并进。中国始终将核安全置于国家安全的战略高度，坚持最严格标准实施核安全监管。'},
+              {title:'核能"三步走"发展战略',text:'第一步：热中子反应堆（热堆）——以压水堆为代表，是目前核电站主力堆型。第二步：快中子反应堆（快堆）——可将铀资源利用率从1%提升至60%以上。第三步：受控核聚变反应堆——模拟太阳聚变反应，有望提供近乎无限的清洁能源。中国正稳步推进"三步走"战略，从"华龙一号"到实验快堆再到参与国际热核聚变实验堆（ITER）计划。'}
+            ]).map((card, ci) => (
+              <div key={ci} className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] hover:border-cyan-500/30 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-5 group">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-light text-cyan-400/50">0{ci + 1}</span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                </div>
+                <h3 className="text-lg font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">{card.title}</h3>
+                <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">{card.text}</p>
               </div>
-              <h3 className="text-lg font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">《中华人民共和国原子能法》</h3>
-              <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                2024年颁布的《原子能法》是我国原子能领域的基础性法律。该法明确了原子能事业"安全第一、保护环境、保障公众健康"的基本原则，确立了核安全监管体制和放射性废物管理体系，为我国核能和平利用与核技术应用提供了坚实的法律保障，标志着我国原子能事业进入法治化新阶段。
-              </p>
-            </div>
-
-            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] hover:border-cyan-500/30 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-5 group">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-light text-cyan-400/50">02</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-              </div>
-              <h3 className="text-lg font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">总体国家安全观与核安全观</h3>
-              <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                总体国家安全观涵盖政治、军事、经济、科技、核安全等十余个领域。核安全观的核心内涵为"理性、协调、并进"——理性认识核安全风险，协调统筹发展与安全，推动核安全事业与核能事业并进。中国始终将核安全置于国家安全的战略高度，坚持最严格标准实施核安全监管。
-              </p>
-            </div>
-
-            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] hover:border-cyan-500/30 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-5 group">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-light text-cyan-400/50">03</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-              </div>
-              <h3 className="text-lg font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">核能"三步走"发展战略</h3>
-              <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                第一步：热中子反应堆（热堆）——以压水堆为代表，是目前核电站主力堆型。第二步：快中子反应堆（快堆）——可将铀资源利用率从1%提升至60%以上。第三步：受控核聚变反应堆——模拟太阳聚变反应，有望提供近乎无限的清洁能源。中国正稳步推进"三步走"战略，从"华龙一号"到实验快堆再到参与国际热核聚变实验堆（ITER）计划。
-              </p>
-            </div>
+            ))}
           </div>
         </section>
 
@@ -1712,9 +1694,9 @@ export default function App() {
           <div className="text-center mb-16 reveal-section" ref={addToRefs}>
             <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/20 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)] backdrop-blur-md">
               <MessageSquareIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">SECT 6. 读者畅想</span>
+              <span className="text-[9px] tracking-[0.3em] text-cyan-100/80 uppercase">{siteContent?.sect6?.label || 'SECT 6. 读者畅想'}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">未来的回响</h2>
+            <h2 className="text-3xl md:text-5xl font-light tracking-[0.15em] text-white">{siteContent?.sect6?.title || '未来的回响'}</h2>
             <p className="text-xs md:text-sm font-light text-white/40 mt-4 tracking-wider">{siteContent?.sect6?.desc || '分享您对核技术应用与发展的独到见解'}</p>
           </div>
 
@@ -1843,8 +1825,8 @@ export default function App() {
             <button onClick={() => setIsAnnounceOpen(false)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-cyan-900/40 border border-white/10 hover:border-cyan-500/40 text-[10px] tracking-[0.25em] text-white/80 hover:text-white font-ui transition-all shadow-sm">← CLOSE</button>
           </div>
           <div className="max-h-[55vh] md:max-h-[45vh] overflow-y-auto pr-4 story-scrollbar text-white/80">
-            <div className="text-xl md:text-2xl font-light tracking-[0.1em] text-white/95 mb-6 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">活动公告</div>
-            <div className="text-sm font-light leading-relaxed tracking-wider text-white/70 whitespace-pre-wrap">欢迎参观本届科普创意赛道项目！<br/><br/>本项目聚焦五大核心板块：核能知识、核技术应用、辐射安全与防护、核工业精神与文化、核安全政策法规。<br/><br/>以生动、直观的方式讲述核科学基本原理，助力营造核工业发展的良好社会氛围。</div>
+            <div className="text-xl md:text-2xl font-light tracking-[0.1em] text-white/95 mb-6 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{siteContent?.announcement?.title || '活动公告'}</div>
+            <div className="text-sm font-light leading-relaxed tracking-wider text-white/70 whitespace-pre-wrap">{siteContent?.announcement?.content || '欢迎参观本届科普创意赛道项目！\n\n本项目聚焦五大核心板块：核能知识、核技术应用、辐射安全与防护、核工业精神与文化、核安全政策法规。\n\n以生动、直观的方式讲述核科学基本原理，助力营造核工业发展的良好社会氛围。'}</div>
           </div>
         </div>
       </div>
@@ -1890,7 +1872,7 @@ export default function App() {
           <CameraIcon className="w-4 h-4 hover:text-cyan-400 transition-colors cursor-pointer" />
         </div>
         <div className="text-[10px] tracking-[0.4em] text-white/20 uppercase font-light mb-4">© {new Date().getFullYear()} SCIENCE & ART. EXPLORE THE UNKNOWN.</div>
-        <div className="text-[8px] tracking-[0.2em] text-white/10 font-light font-ui">本作品使用了 AI 辅助创作</div>
+        <div className="text-[8px] tracking-[0.2em] text-white/10 font-light font-ui">{siteContent?.footer?.aiNotice || '本作品使用了 AI 辅助创作'}</div>
       </footer>
 
       {/* ================= 管理员后台按钮 ================= */}
