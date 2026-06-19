@@ -561,13 +561,13 @@ function SpiritSection({ setIsStoryOpen }) {
       <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
         {stories.map((story, idx) => (
           <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
-            <div className="w-full bg-[#0a101d] overflow-hidden shrink-0">
+            {story.img.length > 0 && <div className="w-full bg-[#0a101d] overflow-hidden shrink-0">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
                 {story.img.map((im, imIdx) => (
                   <img key={imIdx} src={base + im} alt={story.title + '-' + imIdx} className="w-full h-[140px] md:h-[180px] object-cover rounded-md" />
                 ))}
               </div>
-            </div>
+            </div>}
             <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-xs font-light text-cyan-400/60 font-mono">{story.num}</span>
