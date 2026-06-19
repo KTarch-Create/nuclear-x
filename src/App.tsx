@@ -1295,41 +1295,171 @@ export default function App() {
             <RadiationShieldSimulator />
           </div>
 
-          <div className="reveal-section flex flex-col lg:flex-row items-center gap-12 bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-12 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden mt-12" ref={addToRefs}>
-             <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
+          <div className="reveal-section space-y-8 mt-12" ref={addToRefs}>
 
-             <div className="w-full lg:w-[45%] rounded-2xl overflow-hidden border border-white/10 shadow-2xl z-10">
-               <img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1200&q=85" alt="Safety Principles" className="w-full h-full object-cover aspect-square md:aspect-[4/3] opacity-80 hover:opacity-100 transition-all duration-700 hover:scale-105" />
-             </div>
-             <div className="w-full lg:w-[55%] space-y-8 z-10">
-               <div className="bg-white/[0.02] border border-cyan-500/10 rounded-2xl p-5">
-                 <h3 className="text-sm font-light tracking-widest text-cyan-300 mb-4 text-center">📊 日常辐射剂量对比</h3>
-                 <div className="space-y-2">
-                   {[{ label: '1 根香蕉', dose: '0.1 μSv', width: '5%' }, { label: '胸片 X 光', dose: '100 μSv', width: '20%' }, { label: '跨大西洋飞行', dose: '40 μSv', width: '10%' }, { label: '胸部 CT', dose: '~10 mSv', width: '60%' }, { label: '年剂量限值（公众）', dose: '1 mSv', width: '50%' }, { label: '年剂量限值（职业）', dose: '20 mSv', width: '80%' }, { label: '确定性效应阈值', dose: '1000 mSv', width: '100%' }].map((item, i) => (
-                     <div key={i} className="flex items-center gap-3 text-[10px] md:text-[11px]">
-                       <span className="w-32 md:w-40 text-right text-white/50 shrink-0">{item.label}</span>
-                       <div className="flex-1 h-4 bg-white/[0.04] rounded-full overflow-hidden">
-                         <div className="h-full bg-gradient-to-r from-cyan-600/40 to-cyan-400/60 rounded-full transition-all" style={{ width: item.width }}></div>
-                       </div>
-                       <span className="w-20 text-left text-cyan-300/80 shrink-0 font-mono text-[9px]">{item.dose}</span>
-                     </div>
-                   ))}
-                 </div>
-                 <p className="text-[9px] text-white/20 mt-4 text-center font-ui">数据来源：UNSCEAR 2020年报告 · 一只香蕉约含 0.1 μSv 放射性活度</p>
-               </div>
-               <div className="space-y-3">
-                 <h3 className="text-lg md:text-xl text-cyan-300 font-light tracking-widest border-l-[3px] border-cyan-500 pl-4 drop-shadow-md">时间、距离、屏蔽</h3>
-                 <p className="text-xs md:text-sm text-white/60 font-light leading-relaxed pl-4">缩短受照时间、增加与辐射源的距离、设置有效的屏蔽材料，这是国际公认的辐射防护三大核心原则，能将辐射剂量降至绝对安全范围。</p>
-               </div>
-               <div className="space-y-3">
-                 <h3 className="text-lg md:text-xl text-cyan-300 font-light tracking-widest border-l-[3px] border-cyan-500 pl-4 drop-shadow-md">天然辐射无处不在</h3>
-                 <p className="text-xs md:text-sm text-white/60 font-light leading-relaxed pl-4">不必谈核色变。空气、水源甚至身体内部都含有微量的放射性同位素。建立科学的辐射剂量概念，是现代公民的必备素养。每人每年接受天然本底辐射约 2.4 mSv，远低于辐射防护限值。</p>
-               </div>
-               <div className="space-y-3">
-                 <h3 className="text-lg md:text-xl text-cyan-300 font-light tracking-widest border-l-[3px] border-cyan-500 pl-4 drop-shadow-md">核应急常识</h3>
-                 <p className="text-xs md:text-sm text-white/60 font-light leading-relaxed pl-4">在极端突发事件中：听从官方指挥，隐蔽在室内深处，关闭门窗与通风，必要时服用稳定性碘片。理智与科学是最好的护盾。</p>
-               </div>
-             </div>
+            {/* 展区导语 */}
+            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
+              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
+              <p className="text-xs md:text-sm text-white/60 font-light leading-relaxed tracking-wide relative z-10">
+                辐射无处不在，但无需恐惧。科学认识辐射，理性防护，从容应对。本展区帮你掌握核心防护知识，消除不必要的恐慌。
+              </p>
+            </div>
+
+            {/* 辐射防护三原则 */}
+            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
+              <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">ICRP RADIATION PROTECTION SYSTEM</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                </div>
+                <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mb-2">辐射防护三原则</h3>
+                <p className="text-[10px] text-white/30 font-light mb-8 tracking-wider font-ui">ICRP提出的辐射防护体系包含三大原则，三项原则相互关联，共同构成一个严密的防护体系</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {/* 原则一 */}
+                  <div className="bg-white/[0.02] border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-4 group">
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="text-2xl font-light text-cyan-400/60">01</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                    </div>
+                    <div className="flex items-start justify-between">
+                      <h4 className="text-base font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">辐射实践的正当性</h4>
+                      <span className="text-[8px] tracking-widest text-cyan-400/50 bg-cyan-900/30 px-2.5 py-1 rounded-full border border-cyan-500/20 whitespace-nowrap ml-2">前提·要不要做？</span>
+                    </div>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">任何涉及电离辐射的实践，其带来的利益必须大于它可能造成的危害——即"利大于弊"。这是进行任何涉及辐射活动首要考虑的前提。</p>
+                    <div className="bg-[#040a18]/60 rounded-xl p-4 border border-white/[0.04]">
+                      <p className="text-[9px] text-cyan-300/60 tracking-wider mb-2 font-ui">举例说明</p>
+                      <p className="text-[10px] text-white/40 font-light leading-relaxed"><span className="text-green-400/80">✅ 正当的实践：</span>胸部X光检查——诊断疾病带来的健康获益远大于一次小剂量照射的微小风险。</p>
+                      <p className="text-[10px] text-white/40 font-light leading-relaxed mt-1.5"><span className="text-red-400/80">❌ 不正当的实践：</span>将X光用于美容足部塑形等非医疗必要目的——美观收益远不足以抵消不必要的辐射风险。</p>
+                    </div>
+                  </div>
+
+                  {/* 原则二 */}
+                  <div className="bg-white/[0.02] border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-4 group">
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="text-2xl font-light text-cyan-400/60">02</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                    </div>
+                    <div className="flex items-start justify-between">
+                      <h4 className="text-base font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">辐射防护的最优化</h4>
+                      <span className="text-[8px] tracking-widest text-cyan-400/50 bg-cyan-900/30 px-2.5 py-1 rounded-full border border-cyan-500/20 whitespace-nowrap ml-2">过程·如何做好？</span>
+                    </div>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">在考虑到经济和社会因素的前提下，所有的辐射照射都应保持在可合理达到的尽量低的水平——即ALARA原则（As Low As Reasonably Achievable）。</p>
+                    <div className="bg-[#040a18]/60 rounded-xl p-4 border border-white/[0.04]">
+                      <p className="text-[9px] text-cyan-300/60 tracking-wider mb-2 font-ui">具体解读</p>
+                      <p className="text-[10px] text-white/40 font-light leading-relaxed">最优化不意味着追求"零剂量"。在确保实践利益的前提下，平衡<strong className="text-cyan-300/80">经济因素</strong>（防护成本）、<strong className="text-cyan-300/80">社会因素</strong>（公众心理）和<strong className="text-cyan-300/80">防护效果</strong>（剂量降低程度），选择最优方案。</p>
+                      <p className="text-[10px] text-white/40 font-light leading-relaxed mt-1.5">如CT检查时根据体型选择最低够用剂量——既不盲目追求低剂量牺牲诊断价值，也不让患者接受不必要的额外照射。</p>
+                    </div>
+                  </div>
+
+                  {/* 原则三 */}
+                  <div className="bg-white/[0.02] border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 flex flex-col gap-4 group">
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="text-2xl font-light text-cyan-400/60">03</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                    </div>
+                    <div className="flex items-start justify-between">
+                      <h4 className="text-base font-light tracking-widest text-white/90 group-hover:text-cyan-300 transition-colors">个人剂量限值</h4>
+                      <span className="text-[8px] tracking-widest text-cyan-400/50 bg-cyan-900/30 px-2.5 py-1 rounded-full border border-cyan-500/20 whitespace-nowrap ml-2">底线·在哪？</span>
+                    </div>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">确保没有任何个人接受到"不可接受的"高剂量辐射。这是辐射防护体系的最后一道防线，也是防护最优化过程的约束上限。</p>
+                    <div className="bg-[#040a18]/60 rounded-xl p-4 border border-white/[0.04]">
+                      <p className="text-[9px] text-cyan-300/60 tracking-wider mb-2 font-ui">ICRP建议的剂量限值</p>
+                      <div className="space-y-1.5 text-[10px]">
+                        <div className="flex justify-between items-center bg-white/[0.03] rounded-lg px-3 py-2">
+                          <span className="text-white/60">职业人员</span>
+                          <span className="text-cyan-300/90 font-mono">20 mSv/年</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/[0.03] rounded-lg px-3 py-2">
+                          <span className="text-white/60">公众</span>
+                          <span className="text-cyan-300/90 font-mono">1 mSv/年</span>
+                        </div>
+                      </div>
+                      <p className="text-[8px] text-white/30 mt-2 leading-relaxed">注：不含天然本底辐射和医疗照射。职业人员在5年内平均，任何单一年份不超过50 mSv。1 mSv类似"人均GDP"式统计控制标准，而非超过即危险的绝对界限。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 bg-cyan-900/10 border border-cyan-500/10 rounded-xl px-5 py-3">
+                  <p className="text-[10px] text-cyan-300/70 font-light tracking-wider text-center font-ui">辐射防护的目标是：<strong className="text-cyan-200">正当的实践</strong> + <strong className="text-cyan-200">最优的防护</strong> ≤ <strong className="text-cyan-200">规定的限值</strong></p>
+                </div>
+              </div>
+            </div>
+
+            {/* 日常辐射剂量趣味对比 */}
+            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
+              <div className="absolute -bottom-32 right-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">BANANA EQUIVALENT DOSE</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                </div>
+                <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mb-6">🍌 趣味对比：香蕉等效剂量</h3>
+                <p className="text-[10px] text-white/30 font-light mb-6 tracking-wider font-ui">香蕉中含有天然放射性核素钾-40，每吃一根香蕉约受到0.1 μSv（0.0001 mSv）的辐射。以此为标准看常见活动：</p>
+                <div className="space-y-3">
+                  {[
+                    { label: '吃 1 根香蕉', dose: '0.1 μSv', bananas: '1 根', width: '3%' },
+                    { label: '拍 1 次胸片', dose: '0.02~0.1 mSv', bananas: '约 200~1000 根', width: '20%' },
+                    { label: '1 次胸部CT', dose: '约 7~10 mSv', bananas: '约 7万~10万根', width: '60%' },
+                    { label: '短期明显伤害阈值', dose: '~250 mSv', bananas: '约 250万根', width: '85%' },
+                    { label: '公众年剂量限值', dose: '1 mSv', bananas: '约 1万根', width: '35%' },
+                    { label: '职业年剂量限值', dose: '20 mSv', bananas: '约 20万根', width: '65%' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-[10px] md:text-[11px]">
+                      <span className="w-28 md:w-36 text-right text-white/50 shrink-0">{item.label}</span>
+                      <div className="flex-1 h-5 bg-white/[0.04] rounded-full overflow-hidden relative">
+                        <div className="h-full bg-gradient-to-r from-cyan-600/40 to-cyan-400/60 rounded-full transition-all" style={{ width: item.width }}></div>
+                      </div>
+                      <span className="w-24 text-left text-cyan-300/80 shrink-0 font-mono text-[9px]">{item.dose}</span>
+                      <span className="w-28 text-left text-yellow-400/60 shrink-0 text-[9px] font-ui">{item.bananas}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] text-white/20 mt-4 text-center font-ui">医疗检查的辐射风险远低于诊断获益，无需因噎废食。<br />数据来源：UNSCEAR 2020年报告</p>
+              </div>
+            </div>
+
+            {/* 核事故应急 */}
+            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
+              <div className="absolute -top-32 -right-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">EMERGENCY RESPONSE</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                </div>
+                <h3 className="text-xl md:text-2xl font-light tracking-widest text-white/90 mb-6">核事故应急——牢记<strong className="text-cyan-300">九字诀</strong></h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
+                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">📡</div>
+                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">听指挥</h4>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">第一时间获取官方信息，不信谣、不传谣。</p>
+                  </div>
+                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
+                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">🏠</div>
+                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">快隐蔽</h4>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">立即进入室内，关闭门窗和通风系统（外照射可减至室外½~¹⁄₁₀）。</p>
+                  </div>
+                  <div className="bg-cyan-900/15 border border-cyan-500/20 rounded-2xl p-5 md:p-6 text-center">
+                    <div className="text-2xl md:text-3xl font-light text-cyan-300 mb-2">😷</div>
+                    <h4 className="text-sm font-light tracking-widest text-white/90 mb-2">戴口罩</h4>
+                    <p className="text-[11px] text-white/50 font-light leading-relaxed">用湿毛巾捂住口鼻，减少吸入放射性物质（可降至¹⁄₁₀）。</p>
+                  </div>
+                </div>
+                <div className="bg-[#040a18]/60 border border-cyan-500/10 rounded-xl px-5 py-3">
+                  <p className="text-[10px] text-white/40 font-light leading-relaxed text-center">必要时服用稳定性碘（须遵医嘱，碘盐无效），并按指令有序撤离或进行食物饮水控制。</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 展区结语 */}
+            <div className="bg-gradient-to-r from-cyan-900/10 via-transparent to-cyan-900/10 border border-cyan-500/10 rounded-3xl p-6 md:p-8 text-center">
+              <div className="space-y-2">
+                <p className="text-xs md:text-sm text-cyan-300/80 font-light tracking-wider">辐射无处不在，但<strong className="text-cyan-200">剂量决定危害</strong></p>
+                <p className="text-[10px] text-white/40 font-light tracking-wider">防护牢记<strong className="text-white/60">三原则</strong>：正当性 · 最优化 · 剂量限值　｜　应急做到<strong className="text-white/60">三件事</strong>：听指挥 · 快隐蔽 · 戴口罩</p>
+              </div>
+            </div>
+
           </div>
         </section>
 
