@@ -779,12 +779,14 @@ export default function App() {
   const scrollToAnchor = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80; 
+      const offset = 80;
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({ top: elementPosition - offset, behavior: "smooth" });
-      setIsSidebarOpen(false); 
+      setIsSidebarOpen(false);
     }
   };
+
+  const base = (typeof window !== 'undefined' && window.location.pathname.startsWith('/nuclear-x/')) ? '/nuclear-x/' : '/';
 
   return (
     <>
@@ -1042,10 +1044,19 @@ export default function App() {
 
             {/* 一、核裂变与链式反应 */}
             <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
-              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
-                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                  <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+              <div className="w-full lg:w-[55%] flex flex-col gap-3">
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec1_fission_fusion.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
                 </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 裂变与聚变对比图</div>
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec1_uranium_fission.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
+                </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 铀-235裂变示意图</div>
               </div>
               <div className="w-full lg:w-[45%] flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-5">
@@ -1060,10 +1071,19 @@ export default function App() {
 
             {/* 二、核聚变 —— 星辰的能量 */}
             <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-20 w-full">
-              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
-                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+              <div className="w-full lg:w-[55%] flex flex-col gap-3">
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec2_fusion_sun.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
                 </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 太阳内部聚变与可控核聚变对比图</div>
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec2_iter.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
+                </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ ITER装置实拍图</div>
               </div>
               <div className="w-full lg:w-[45%] flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-5">
@@ -1078,10 +1098,19 @@ export default function App() {
 
             {/* 三、先进反应堆技术 */}
             <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
-              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
-                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                  <img src="https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+              <div className="w-full lg:w-[55%] flex flex-col gap-3">
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec3_linglong.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
                 </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 玲龙一号实拍图</div>
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec3_htrpm.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
+                </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 石岛湾高温气冷堆外观图</div>
               </div>
               <div className="w-full lg:w-[45%] flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-5">
@@ -1096,10 +1125,13 @@ export default function App() {
 
             {/* 四、核燃料循环 */}
             <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-20 w-full">
-              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
-                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                  <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+              <div className="w-full lg:w-[55%] flex flex-col gap-3">
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec4_fuel_cycle.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
                 </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 核燃料循环示意图</div>
               </div>
               <div className="w-full lg:w-[45%] flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-5">
@@ -1114,10 +1146,19 @@ export default function App() {
 
             {/* 五、核电安全 —— 纵深防御 */}
             <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
-              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
-                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+              <div className="w-full lg:w-[55%] flex flex-col gap-3">
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec5_double_shell.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
                 </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 华龙一号双层安全壳剖面图</div>
+                <div className="overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                    <img src={base + 'docx_images/sec5_hualong.webp'} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                  </div>
+                </div>
+                <div className="text-[9px] text-center text-white/30 tracking-wider -mt-1">▲ 华龙一号实拍图</div>
               </div>
               <div className="w-full lg:w-[45%] flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-5">
