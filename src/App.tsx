@@ -1249,27 +1249,23 @@ export default function App() {
             </button>
           </div>
 
-          {/* 核工业精神故事集 - 图文交错排版 */}
+          {/* 核工业精神故事集 - 图文交错排版（文档图文一一对应） */}
           <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
             {[
-              { num: '01', title: '"两弹一星"精神永放光芒', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80', desc: '1999年9月18日，在庆祝中华人民共和国成立50周年之际，党中央、国务院、中央军委隆重表彰为研制"两弹一星"作出突出贡献的23位科技专家，首次将这一伟大壮举背后的精神品格概括为"两弹一星"精神。' },
-              { num: '02', title: '王淦昌三次"我愿意"', img: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=600&q=80', desc: '王淦昌（1912-1994），1956年放弃在国外的事业回到祖国。钱三强问他能否转行搞原子能，他斩钉截铁回答"我愿意。"此后两次面对国家召唤，他始终以"我愿意"回应，用三个"我愿意"书写了一位科学家的绝对忠诚。' },
-              { num: '03', title: '草原英雄：221厂的日日夜夜', img: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=600&q=80', desc: '在青海金银滩221厂——中国第一个核武器研制基地，魏震英、郭永怀等一代核工业人，在海拔3200米的高原上面对风雪肆虐的恶劣环境，为了获取核爆炸瞬间的宝贵数据，常常人工进入危险区域测量。' },
-              { num: '04', title: '郭永怀：以生命守护数据', img: 'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=600&q=80', desc: '1968年12月5日，郭永怀从青海乘机返回北京，飞机失事坠毁。救援人员发现他与警卫员紧紧拥抱在一起，用身体保护着装有热核导弹绝密数据的公文包。他是唯一被追授"两弹一星"功勋奖章的烈士科学家。' },
-              { num: '05', title: '于敏"百日会战"', img: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80', desc: '1965年，于敏团队在上海华东计算所展开氢弹原理验证计算。在仅有5万次/秒电子管计算机的条件下，历经100多个昼夜的高强度计算，史称"百日会战"。从原子弹到氢弹，中国仅用2年8个月，世界最快。' },
-              { num: '06', title: '80度开水煮不熟饭', img: 'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=600&q=80', desc: '青海221厂海拔3200米，因气压低水的沸点仅80℃。无论煮多久饭都不熟，高原缺氧使人睡觉时呼吸艰难。冬季住地窝子、干打垒，眉须结霜。但无人抱怨，他们在极端条件下建起了核武器研制基地。' },
-              { num: '07', title: '10元奖金与"失踪的人"', img: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80', desc: '1985年原子弹项目获国家科技进步特等奖，奖金仅1万元，许多参与者只拿到10元。为保密，数万建设者与家人"失联"20年。"干惊天动地事，做隐姓埋名人"——核工业人的家国情怀。' },
-              { num: '08', title: '全国协作"651"计划', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80', desc: '1965年启动氢弹攻关"651"计划，调动2万多名专家、29个省市区、1000多家单位、数十万科技人员协同作战，展现了社会主义集中力量办大事的制度优势与大力协同精神。' },
-              { num: '09', title: '"争气弹"：赫鲁晓夫撤援之后', img: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=600&q=80', desc: '1959年赫鲁晓夫撤走专家，称"你们20年也造不出原子弹。"中国用算盘计算核参数。1964年10月16日第一颗原子弹爆炸，仅用5年。这颗"争气弹"以民族不屈精神回击了封锁。' },
-              { num: '10', title: '跨越时空：从"两弹一星"到"华龙一号"', img: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=600&q=80', desc: '从戈壁帐篷、算盘计算，到拥有完全自主知识产权的三代核电"华龙一号"，中国核工业从无到有。"两弹一星"精神薪火相传，国家需要什么就造什么。' },
+              { num: '01', title: '"两弹一星"精神永放光芒', img: '/stories/image1.png', desc: '1999年9月18日，在庆祝中华人民共和国成立50周年之际，党中央、国务院、中央军委隆重表彰为研制"两弹一星"作出突出贡献的23位科技专家，首次将这一伟大壮举背后的精神品格概括为"两弹一星"精神。' },
+              { num: '02', title: '王淦昌三次"我愿意"', img: '/stories/image2.png', desc: '王淦昌（1912-1994），1956年放弃在国外的事业回到祖国。钱三强问他能否转行搞原子能，他斩钉截铁回答"我愿意。"此后两次面对国家召唤，他始终以"我愿意"回应，用三个"我愿意"书写了一位科学家的绝对忠诚。' },
+              { num: '03', title: '草原英雄：221厂的日日夜夜', img: '/stories/image3.png', desc: '在青海金银滩221厂——中国第一个核武器研制基地，魏震英、郭永怀等一代核工业人，在海拔3200米的高原上面对风雪肆虐的恶劣环境，为了获取核爆炸瞬间的宝贵数据，常常人工进入危险区域测量。' },
+              { num: '04', title: '郭永怀：以生命守护数据', img: '/stories/image4.png', desc: '1968年12月5日，郭永怀从青海乘机返回北京，飞机失事坠毁。救援人员发现他与警卫员紧紧拥抱在一起，用身体保护着装有热核导弹绝密数据的公文包。他是唯一被追授"两弹一星"功勋奖章的烈士科学家。' },
+              { num: '05', title: '于敏"百日会战"', img: '/stories/image5.png', desc: '1965年，于敏团队在上海华东计算所展开氢弹原理验证计算。在仅有5万次/秒电子管计算机的条件下，历经100多个昼夜的高强度计算，史称"百日会战"。从原子弹到氢弹，中国仅用2年8个月，世界最快。' },
+              { num: '06', title: '80度开水煮不熟饭', img: '/stories/image6.png', desc: '青海221厂海拔3200米，因气压低水的沸点仅80℃。无论煮多久饭都不熟，高原缺氧使人睡觉时呼吸艰难。冬季住地窝子、干打垒，眉须结霜。但无人抱怨，他们在极端条件下建起了核武器研制基地。' },
+              { num: '07', title: '10元奖金与"失踪的人"', img: '/stories/image7.png', desc: '1985年原子弹项目获国家科技进步特等奖，奖金仅1万元，许多参与者只拿到10元。为保密，数万建设者与家人"失联"20年。"干惊天动地事，做隐姓埋名人"——核工业人的家国情怀。' },
+              { num: '08', title: '全国协作"651"计划', img: '/stories/image8.png', desc: '1965年启动氢弹攻关"651"计划，调动2万多名专家、29个省市区、1000多家单位、数十万科技人员协同作战，展现了社会主义集中力量办大事的制度优势与大力协同精神。' },
+              { num: '09', title: '"争气弹"：赫鲁晓夫撤援之后', img: '/stories/image9.png', desc: '1959年赫鲁晓夫撤走专家，称"你们20年也造不出原子弹。"中国用算盘计算核参数。1964年10月16日第一颗原子弹爆炸，仅用5年。这颗"争气弹"以民族不屈精神回击了封锁。' },
+              { num: '10', title: '跨越时空：从"两弹一星"到"华龙一号"', img: '/stories/image10.png', desc: '从戈壁帐篷、算盘计算，到拥有完全自主知识产权的三代核电"华龙一号"，中国核工业从无到有。"两弹一星"精神薪火相传，国家需要什么就造什么。' },
             ].map((story, idx) => (
               <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
-                <div className="w-full lg:w-[35%] min-h-[200px] md:min-h-[240px] relative overflow-hidden shrink-0">
-                  <img src={story.img} alt={story.title} className="w-full h-full absolute inset-0 object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#040a18]/90 via-[#040a18]/40 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 z-10">
-                    <span className="text-[10px] text-cyan-400/80 font-mono">{story.num}</span>
-                  </div>
+                <div className="w-full lg:w-[35%] min-h-[220px] md:min-h-[260px] relative overflow-hidden shrink-0 bg-[#0a101d]">
+                  <img src={story.img} alt={story.title} className="w-full h-full absolute inset-0 object-contain group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-3">
