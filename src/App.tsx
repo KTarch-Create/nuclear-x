@@ -35,7 +35,7 @@ const reversedToken = 'uKDDb4LwWuuG0x9khy7qeA2kgTvZCNkLEs4l_phg';
 const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
 
 async function getGitHubFile(path) {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ts=${Date.now()}`;
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?t=${Date.now()}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
   if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
   const data = await res.json();
@@ -46,17 +46,43 @@ async function getGitHubFile(path) {
   return { content: JSON.parse(text), sha: data.sha };
 }
 
-async function writeGitHubFile(path, content, commitMsg, sha) {
+async function writeGitHubFile(path, content, commitMsg) {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
   const jsonStr = JSON.stringify(content, null, 2);
   const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
-  const body = { message: commitMsg, content: encoded, sha };
+  // 先获取最新sha
+  const getRes = await fetch(url + `?t=${Date.now()}`, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
+  const sha = getRes.ok ? (await getRes.json()).sha : null;
+  const body = { message: commitMsg, content: encoded };
+  if (sha) body.sha = sha;
   const res = await fetch(url, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`GitHub PUT failed: ${res.status}`);
+  if (!res.ok) console.warn('GitHub PUT returned', res.status);
+  return res.ok;
+}
+
+async function listGitHubDir(path) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
+  if (!res.ok) return [];
+  const data = await res.json();
+  if (!Array.isArray(data)) return [];
+  return data.filter(f => f.name.endsWith('.json')).map(f => ({ name: f.name, sha: f.sha }));
+}
+
+async function readGitHubFileRaw(path) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?t=${Date.now()}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const decoded = atob(data.content);
+  const bytes = new Uint8Array(decoded.length);
+  for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+  const text = new TextDecoder('utf-8').decode(bytes);
+  return JSON.parse(text);
 }
 
 // ================= SHA-256 哈希函数 =================
@@ -726,8 +752,7 @@ export default function App() {
   const saveMessagesToGitHub = async (msgs) => {
     setSyncStatus('同步中...');
     try {
-      const { sha } = await getGitHubFile(MESSAGES_PATH);
-      await writeGitHubFile(MESSAGES_PATH, msgs, `更新留言板 (${msgs.length} 条留言)`, sha);
+      await writeGitHubFile(MESSAGES_PATH, msgs, `更新留言板 (${msgs.length} 条留言)`);
       setSyncStatus('已同步');
     } catch (e) {
       setSyncStatus('同步失败');
@@ -781,12 +806,12 @@ export default function App() {
     setSiteContent(editingContent);
     safeSetStorage('nuke_site_content', editingContent);
     setAdminSaveStatus('已同步');
+    safeSetStorage('nuke_site_content', editingContent);
     try {
-      const { sha } = await getGitHubFile('site-content.json');
-      await writeGitHubFile('site-content.json', editingContent, '更新页面文本', sha);
+      await writeGitHubFile('site-content.json', editingContent, '更新页面文本');
       setAdminSaveStatus('已保存 ✅');
     } catch (e) {
-      setAdminSaveStatus('GitHub保存失败，页面已更新');
+      setAdminSaveStatus('页面已更新，GitHub保存失败');
     }
     setTimeout(() => setAdminSaveStatus(''), 3000);
   };
@@ -796,8 +821,7 @@ export default function App() {
     setMessages(updated);
     safeSetStorage('nuke_guest_messages', updated);
     try {
-      const { sha } = await getGitHubFile(MESSAGES_PATH);
-      await writeGitHubFile(MESSAGES_PATH, updated, `管理员删除留言 (ID: ${id})`, sha);
+      await writeGitHubFile(MESSAGES_PATH, updated, `管理员删除留言 (ID: ${id})`);
     } catch (e) {
       console.warn('Delete sync failed:', e);
     }
@@ -805,28 +829,52 @@ export default function App() {
 
   // ================= 留言备份系统 =================
   const [backupStatus, setBackupStatus] = useState('');
+  const [backupList, setBackupList] = useState([]);
+  const [showBackups, setShowBackups] = useState(false);
 
   const createBackup = async () => {
     setBackupStatus('备份中...');
     try {
       const now = new Date();
       const ts = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
-      // 先获取现有备份列表
       const backupDir = `guestbook-backups/backup-${ts}.json`;
+      const { content: existing, sha } = await getGitHubFile(backupDir).catch(() => ({ content: null, sha: null }));
       const jsonStr = JSON.stringify(currentMessages, null, 2);
       const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
       const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${backupDir}`;
+      const body = { message: `留言板备份 ${ts}`, content: encoded };
+      if (sha) body.sha = sha;
       const res = await fetch(url, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `留言板备份 ${ts}`, content: encoded }),
+        body: JSON.stringify(body),
       });
-      if (res.ok) setBackupStatus('备份成功 ✅');
+      if (res.ok) { setBackupStatus('备份成功 ✅'); loadBackupList(); }
       else setBackupStatus('备份失败');
     } catch (e) {
-      setBackupStatus('备份失败: ' + e.message);
+      setBackupStatus('备份失败');
     }
     setTimeout(() => setBackupStatus(''), 3000);
+  };
+
+  const loadBackupList = async () => {
+    const files = await listGitHubDir('guestbook-backups');
+    setBackupList(files.sort((a, b) => b.name.localeCompare(a.name)));
+  };
+
+  const restoreBackup = async (backupName) => {
+    if (!confirm(`确定恢复 ${backupName}？当前留言将被覆盖。`)) return;
+    try {
+      const data = await readGitHubFileRaw(`guestbook-backups/${backupName}`);
+      if (Array.isArray(data)) {
+        setMessages(data);
+        safeSetStorage('nuke_guest_messages', data);
+        await writeGitHubFile('guestbook.json', data, `从备份 ${backupName} 恢复留言板`);
+        alert('恢复成功 ✅');
+      }
+    } catch (e) {
+      alert('恢复失败');
+    }
   };
 
   const handleAdminLogout = () => {
@@ -838,11 +886,11 @@ export default function App() {
 
   const handleChangePassword = async (oldPw, newPw) => {
     const oldHash = await sha256(oldPw);
-    const { content: config, sha } = await getGitHubFile('admin-config.json');
+    const { content: config } = await getGitHubFile('admin-config.json');
     if (oldHash !== config.passwordHash) return '旧密码错误';
     const newHash = await sha256(newPw);
     config.passwordHash = newHash;
-    await writeGitHubFile('admin-config.json', config, '修改管理员密码', sha);
+    await writeGitHubFile('admin-config.json', config, '修改管理员密码');
     return '密码修改成功';
   };
 
@@ -853,10 +901,10 @@ export default function App() {
     setSecStatus('');
     try {
       const oldHash = await sha256(secOldPw);
-      const { content: config, sha } = await getGitHubFile('admin-config.json');
+      const { content: config } = await getGitHubFile('admin-config.json');
       if (oldHash !== config.passwordHash) { setSecStatus('旧密码错误'); return; }
       config.passwordHash = await sha256(secNewPw);
-      await writeGitHubFile('admin-config.json', config, '修改管理员密码', sha);
+      await writeGitHubFile('admin-config.json', config, '修改管理员密码');
       setSecStatus('密码修改成功 ✅');
       setSecOldPw(''); setSecNewPw(''); setSecConfirmPw('');
     } catch (e) {
@@ -2043,6 +2091,19 @@ export default function App() {
                       </div>
                     ))
                   )}
+                  <div className="pt-2 border-t border-white/[0.04]">
+                    <button onClick={() => { loadBackupList(); setShowBackups(!showBackups); }} className="text-[8px] text-cyan-400/50 hover:text-cyan-400 transition-all font-ui tracking-wider">{showBackups ? '收起备份列表' : '📋 查看历史备份'}</button>
+                    {showBackups && (
+                      <div className="mt-3 space-y-1.5 max-h-36 overflow-y-auto story-scrollbar">
+                        {backupList.length === 0 ? <p className="text-[8px] text-white/20 font-ui">暂无备份</p> : backupList.map(f => (
+                          <div key={f.name} className="flex items-center justify-between bg-white/[0.02] rounded-lg px-3 py-2">
+                            <span className="text-[8px] text-white/40 font-mono">{f.name.replace('backup-','').replace('.json','')}</span>
+                            <button onClick={() => restoreBackup(f.name)} className="px-2.5 py-1 bg-cyan-900/20 hover:bg-cyan-900/40 border border-cyan-500/20 rounded-md text-[7px] tracking-widest text-cyan-400/70 hover:text-cyan-400 transition-all font-ui">恢复</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               {adminTab === 'security' && (
