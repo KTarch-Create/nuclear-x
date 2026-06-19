@@ -526,6 +526,84 @@ const DEFAULT_MESSAGES = [
   { id: 102, name: "未来探索者", text: "极具质感的设计让人能沉下心来阅读硬核的科普内容。非常期待第四代反应堆的商业化应用，清洁能源普及指日可待！", time: "2026-06-16 09:15" }
 ];
 
+function SpiritSection({ setIsStoryOpen }) {
+  const refs = useRef([]);
+  const addToRefs = (el) => { if (el && !refs.current.includes(el)) refs.current.push(el); };
+  const base = import.meta.env.BASE_URL || '';
+  const stories = [
+    { num: '01', title: '"两弹一星"精神永放光芒', img: 'stories/image1.png', desc: '1999年9月18日，在庆祝中华人民共和国成立50周年之际，党中央、国务院、中央军委隆重表彰为研制"两弹一星"作出突出贡献的23位科技专家，首次将这一伟大壮举背后的精神品格概括为"两弹一星"精神。' },
+    { num: '02', title: '王淦昌三次"我愿意"', img: 'stories/image2.png', desc: '王淦昌（1912-1994），1956年放弃在国外的事业回到祖国。钱三强问他能否转行搞原子能，他斩钉截铁回答"我愿意。"此后两次面对国家召唤，他始终以"我愿意"回应，用三个"我愿意"书写了一位科学家的绝对忠诚。' },
+    { num: '03', title: '草原英雄：221厂的日日夜夜', img: 'stories/image3.png', desc: '在青海金银滩221厂——中国第一个核武器研制基地，魏震英、郭永怀等一代核工业人，在海拔3200米的高原上面对风雪肆虐的恶劣环境，为了获取核爆炸瞬间的宝贵数据，常常人工进入危险区域测量。' },
+    { num: '04', title: '郭永怀：以生命守护数据', img: 'stories/image4.png', desc: '1968年12月5日，郭永怀从青海乘机返回北京，飞机失事坠毁。救援人员发现他与警卫员紧紧拥抱在一起，用身体保护着装有热核导弹绝密数据的公文包。他是唯一被追授"两弹一星"功勋奖章的烈士科学家。' },
+    { num: '05', title: '于敏"百日会战"', img: 'stories/image5.png', desc: '1965年，于敏团队在上海华东计算所展开氢弹原理验证计算。在仅有5万次/秒电子管计算机的条件下，历经100多个昼夜的高强度计算，史称"百日会战"。从原子弹到氢弹，中国仅用2年8个月，世界最快。' },
+    { num: '06', title: '80度开水煮不熟饭', img: 'stories/image6.png', desc: '青海221厂海拔3200米，因气压低水的沸点仅80℃。无论煮多久饭都不熟，高原缺氧使人睡觉时呼吸艰难。冬季住地窝子、干打垒，眉须结霜。但无人抱怨，他们在极端条件下建起了核武器研制基地。' },
+    { num: '07', title: '10元奖金与"失踪的人"', img: 'stories/image7.png', desc: '1985年原子弹项目获国家科技进步特等奖，奖金仅1万元，许多参与者只拿到10元。为保密，数万建设者与家人"失联"20年。"干惊天动地事，做隐姓埋名人"——核工业人的家国情怀。' },
+    { num: '08', title: '全国协作"651"计划', img: 'stories/image8.png', desc: '1965年启动氢弹攻关"651"计划，调动2万多名专家、29个省市区、1000多家单位、数十万科技人员协同作战，展现了社会主义集中力量办大事的制度优势与大力协同精神。' },
+    { num: '09', title: '"争气弹"：赫鲁晓夫撤援之后', img: 'stories/image9.png', desc: '1959年赫鲁晓夫撤走专家，称"你们20年也造不出原子弹。"中国用算盘计算核参数。1964年10月16日第一颗原子弹爆炸，仅用5年。这颗"争气弹"以民族不屈精神回击了封锁。' },
+    { num: '10', title: '跨越时空：从"两弹一星"到"华龙一号"', img: 'stories/image10.png', desc: '从戈壁帐篷、算盘计算，到拥有完全自主知识产权的三代核电"华龙一号"，中国核工业从无到有。"两弹一星"精神薪火相传，国家需要什么就造什么。' },
+  ];
+  return (
+    <>
+      <div className="text-center mb-16 reveal-section" ref={addToRefs}>
+        <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/30 border border-cyan-500/30 shadow-sm backdrop-blur-md">
+          <FilmIcon className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-[9px] tracking-[0.3em] text-cyan-100/90 uppercase">SECT 4. 精神文化</span>
+        </div>
+        <h2 className="text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">星辰大海的征途</h2>
+        <p className="text-xs md:text-sm text-white/60 max-w-3xl mx-auto tracking-widest leading-loose">
+          "两弹一星"精神、核潜艇精神，一代代核工业人隐姓埋名，用青春与热血铸就了共和国的钢铁脊梁。从戈壁荒漠到高原深处，十段感人至深的故事，带你走进中国核工业的精神殿堂。
+        </p>
+        <button onClick={() => setIsStoryOpen(true)} className="mt-8 px-8 py-4 bg-cyan-700/80 hover:bg-cyan-600 active:scale-95 rounded-full text-[10px] md:text-xs text-white tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] backdrop-blur-md">
+          沉浸式阅读：十段光辉纪实
+        </button>
+      </div>
+      <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
+        {stories.map((story, idx) => (
+          <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
+            <div className="w-full lg:w-[35%] min-h-[220px] md:min-h-[260px] relative overflow-hidden shrink-0 bg-[#0a101d]">
+              <img src={base + story.img} alt={story.title} className="w-full h-full absolute inset-0 object-contain group-hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xs font-light text-cyan-400/60 font-mono">{story.num}</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/20 to-transparent"></div>
+              </div>
+              <h3 className="text-base md:text-lg font-light tracking-widest text-white/90 mb-3 group-hover:text-cyan-300 transition-colors font-artistic">{story.title}</h3>
+              <p className="text-xs md:text-sm text-white/50 font-light leading-relaxed">{story.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-16 max-w-4xl mx-auto px-4 reveal-section" ref={addToRefs}>
+        <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic block mb-8 text-center">CHRONOLOGY · 中国核工业大事记</span>
+        <div className="flex overflow-x-auto pb-4 gap-0 story-scrollbar" style={{ scrollbarWidth: 'thin' }}>
+          {[
+            { year: '1955', event: '中国核工业起步', detail: '中共中央作出发展原子能事业的战略决策' },
+            { year: '1964', event: '第一颗原子弹', detail: '1964年10月16日，中国第一颗原子弹在罗布泊爆炸成功' },
+            { year: '1967', event: '第一颗氢弹', detail: '1967年6月17日，中国第一颗氢弹空爆试验成功' },
+            { year: '1970', event: '第一艘核潜艇', detail: '中国第一艘核潜艇"长征一号"下水' },
+            { year: '1991', event: '秦山核电并网', detail: '中国自行设计建造的秦山核电站并网发电' },
+            { year: '2015', event: '"华龙一号"启航', detail: '中国自主三代核电技术"华龙一号"开工建设' },
+            { year: '2023', event: '高温气冷堆商运', detail: '石岛湾高温气冷堆（HTR-PM）投入商业运行' },
+            { year: '2025', event: '华龙一号出海', detail: '"华龙一号"多台机组在国内外并网运行' },
+          ].map((item, i) => (
+            <div key={i} className="flex flex-col items-center min-w-[100px] md:min-w-[120px] relative group">
+              <div className="w-3 h-3 rounded-full bg-cyan-500/60 group-hover:bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.4)] transition-all z-10 shrink-0"></div>
+              <div className={`h-0.5 w-full bg-gradient-to-r ${i === 0 ? 'from-transparent to-cyan-500/20' : i === 7 ? 'from-cyan-500/20 to-transparent' : 'from-cyan-500/20 via-cyan-500/30 to-cyan-500/20'} absolute top-1.5 left-1/2`}></div>
+              <div className="mt-3 text-center">
+                <span className="text-[10px] md:text-xs text-cyan-300 font-mono font-light block">{item.year}</span>
+                <span className="text-[8px] md:text-[9px] text-white/60 block mt-1 leading-tight">{item.event}</span>
+                <span className="text-[7px] text-white/20 hidden group-hover:block transition-all mt-1 max-w-[100px] leading-tight">{item.detail}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[8px] text-white/15 text-center mt-6 font-ui">← 左右滑动查看完整时间线 →</p>
+      </div>
+    </>
+  );
+}
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -1234,78 +1312,7 @@ export default function App() {
 
         {/* ================= 板块4：精神与文化 ================= */}
         <section id="spirit" className="site-section relative z-20 py-24 px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto">
-          <div className="text-center mb-16 reveal-section" ref={addToRefs}>
-            <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-cyan-900/30 border border-cyan-500/30 shadow-sm backdrop-blur-md">
-              <FilmIcon className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[9px] tracking-[0.3em] text-cyan-100/90 uppercase">SECT 4. 精神文化</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">星辰大海的征途</h2>
-            <p className="text-xs md:text-sm text-white/60 max-w-3xl mx-auto tracking-widest leading-loose">
-              "两弹一星"精神、核潜艇精神，一代代核工业人隐姓埋名，用青春与热血铸就了共和国的钢铁脊梁。
-              从戈壁荒漠到高原深处，从算盘计算到超级计算机，十段感人至深的故事，带你走进中国核工业的精神殿堂。
-            </p>
-            <button onClick={() => setIsStoryOpen(true)} className="mt-8 px-8 py-4 bg-cyan-700/80 hover:bg-cyan-600 active:scale-95 rounded-full text-[10px] md:text-xs text-white tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] backdrop-blur-md">
-              沉浸式阅读：十段光辉纪实
-            </button>
-          </div>
-
-          {/* 核工业精神故事集 - 图文交错排版（文档图文一一对应） */}
-          <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
-            {[
-              { num: '01', title: '"两弹一星"精神永放光芒', img: '/stories/image1.png', desc: '1999年9月18日，在庆祝中华人民共和国成立50周年之际，党中央、国务院、中央军委隆重表彰为研制"两弹一星"作出突出贡献的23位科技专家，首次将这一伟大壮举背后的精神品格概括为"两弹一星"精神。' },
-              { num: '02', title: '王淦昌三次"我愿意"', img: '/stories/image2.png', desc: '王淦昌（1912-1994），1956年放弃在国外的事业回到祖国。钱三强问他能否转行搞原子能，他斩钉截铁回答"我愿意。"此后两次面对国家召唤，他始终以"我愿意"回应，用三个"我愿意"书写了一位科学家的绝对忠诚。' },
-              { num: '03', title: '草原英雄：221厂的日日夜夜', img: '/stories/image3.png', desc: '在青海金银滩221厂——中国第一个核武器研制基地，魏震英、郭永怀等一代核工业人，在海拔3200米的高原上面对风雪肆虐的恶劣环境，为了获取核爆炸瞬间的宝贵数据，常常人工进入危险区域测量。' },
-              { num: '04', title: '郭永怀：以生命守护数据', img: '/stories/image4.png', desc: '1968年12月5日，郭永怀从青海乘机返回北京，飞机失事坠毁。救援人员发现他与警卫员紧紧拥抱在一起，用身体保护着装有热核导弹绝密数据的公文包。他是唯一被追授"两弹一星"功勋奖章的烈士科学家。' },
-              { num: '05', title: '于敏"百日会战"', img: '/stories/image5.png', desc: '1965年，于敏团队在上海华东计算所展开氢弹原理验证计算。在仅有5万次/秒电子管计算机的条件下，历经100多个昼夜的高强度计算，史称"百日会战"。从原子弹到氢弹，中国仅用2年8个月，世界最快。' },
-              { num: '06', title: '80度开水煮不熟饭', img: '/stories/image6.png', desc: '青海221厂海拔3200米，因气压低水的沸点仅80℃。无论煮多久饭都不熟，高原缺氧使人睡觉时呼吸艰难。冬季住地窝子、干打垒，眉须结霜。但无人抱怨，他们在极端条件下建起了核武器研制基地。' },
-              { num: '07', title: '10元奖金与"失踪的人"', img: '/stories/image7.png', desc: '1985年原子弹项目获国家科技进步特等奖，奖金仅1万元，许多参与者只拿到10元。为保密，数万建设者与家人"失联"20年。"干惊天动地事，做隐姓埋名人"——核工业人的家国情怀。' },
-              { num: '08', title: '全国协作"651"计划', img: '/stories/image8.png', desc: '1965年启动氢弹攻关"651"计划，调动2万多名专家、29个省市区、1000多家单位、数十万科技人员协同作战，展现了社会主义集中力量办大事的制度优势与大力协同精神。' },
-              { num: '09', title: '"争气弹"：赫鲁晓夫撤援之后', img: '/stories/image9.png', desc: '1959年赫鲁晓夫撤走专家，称"你们20年也造不出原子弹。"中国用算盘计算核参数。1964年10月16日第一颗原子弹爆炸，仅用5年。这颗"争气弹"以民族不屈精神回击了封锁。' },
-              { num: '10', title: '跨越时空：从"两弹一星"到"华龙一号"', img: '/stories/image10.png', desc: '从戈壁帐篷、算盘计算，到拥有完全自主知识产权的三代核电"华龙一号"，中国核工业从无到有。"两弹一星"精神薪火相传，国家需要什么就造什么。' },
-            ].map((story, idx) => (
-              <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
-                <div className="w-full lg:w-[35%] min-h-[220px] md:min-h-[260px] relative overflow-hidden shrink-0 bg-[#0a101d]">
-                  <img src={story.img} alt={story.title} className="w-full h-full absolute inset-0 object-contain group-hover:scale-105 transition-transform duration-700" />
-                </div>
-                <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs font-light text-cyan-400/60 font-mono">{story.num}</span>
-                    <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/20 to-transparent"></div>
-                  </div>
-                  <h3 className="text-base md:text-lg font-light tracking-widest text-white/90 mb-3 group-hover:text-cyan-300 transition-colors font-artistic">{story.title}</h3>
-                  <p className="text-xs md:text-sm text-white/50 font-light leading-relaxed">{story.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* 核工业历史时间线 */}
-          <div className="mt-16 max-w-4xl mx-auto px-4 reveal-section" ref={addToRefs}>
-            <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic block mb-8 text-center">CHRONOLOGY · 中国核工业大事记</span>
-            <div className="flex overflow-x-auto pb-4 gap-0 story-scrollbar" style={{ scrollbarWidth: 'thin' }}>
-              {[
-                { year: '1955', event: '中国核工业起步', detail: '中共中央作出发展原子能事业的战略决策' },
-                { year: '1964', event: '第一颗原子弹', detail: '1964年10月16日，中国第一颗原子弹在罗布泊爆炸成功' },
-                { year: '1967', event: '第一颗氢弹', detail: '1967年6月17日，中国第一颗氢弹空爆试验成功' },
-                { year: '1970', event: '第一艘核潜艇', detail: '中国第一艘核潜艇"长征一号"下水' },
-                { year: '1991', event: '秦山核电并网', detail: '中国自行设计建造的秦山核电站并网发电' },
-                { year: '2015', event: '"华龙一号"启航', detail: '中国自主三代核电技术"华龙一号"开工建设' },
-                { year: '2023', event: '高温气冷堆商运', detail: '石岛湾高温气冷堆（HTR-PM）投入商业运行' },
-                { year: '2025', event: '华龙一号出海', detail: '"华龙一号"多台机组在国内外并网运行' },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center min-w-[100px] md:min-w-[120px] relative group">
-                  <div className="w-3 h-3 rounded-full bg-cyan-500/60 group-hover:bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.4)] transition-all z-10 shrink-0"></div>
-                  <div className={`h-0.5 w-full bg-gradient-to-r ${i === 0 ? 'from-transparent to-cyan-500/20' : i === 7 ? 'from-cyan-500/20 to-transparent' : 'from-cyan-500/20 via-cyan-500/30 to-cyan-500/20'} absolute top-1.5 left-1/2`}></div>
-                  <div className="mt-3 text-center">
-                    <span className="text-[10px] md:text-xs text-cyan-300 font-mono font-light block">{item.year}</span>
-                    <span className="text-[8px] md:text-[9px] text-white/60 block mt-1 leading-tight">{item.event}</span>
-                    <span className="text-[7px] text-white/20 hidden group-hover:block transition-all mt-1 max-w-[100px] leading-tight">{item.detail}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-[8px] text-white/15 text-center mt-6 font-ui">← 左右滑动查看完整时间线 →</p>
-          </div>
+          <SpiritSection setIsStoryOpen={setIsStoryOpen} />
         </section>
 
         {/* ================= 板块5：政策法规解读 ================= */}
