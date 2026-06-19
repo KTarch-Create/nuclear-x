@@ -1000,7 +1000,7 @@ export default function App() {
               <span className="text-sm md:text-base font-light tracking-[0.3em] text-white/80">参赛作品：核光纪元</span>
               <span className="text-xs tracking-[0.25em] text-cyan-200/70">重庆理工大学</span>
               <span className="text-[10px] tracking-[0.2em] text-white/40 mt-2">江志磊 · 王子健 · 张鹏程 · 杨来</span>
-              <span className="text-[9px] tracking-[0.25em] text-cyan-400/60 mt-2">科普创意赛道</span>
+              <span className="text-[9px] tracking-[0.25em] text-cyan-400/60 mt-2">科普创意赛道 · H5</span>
             </div>
             <div className="mt-6 text-[9px] tracking-[0.3em] text-white/15 splash-item" style={{ animation: 'fadeInUp 1s ease 0.9s forwards' }}>
               核聚科普星火，科创燃动未来
