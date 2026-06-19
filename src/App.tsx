@@ -35,9 +35,8 @@ const reversedToken = 'uKDDb4LwWuuG0x9khy7qeA2kgTvZCNkLEs4l_phg';
 const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
 
 async function getGitHubFile(path) {
-  // 使用 Contents API 读取文件（比 raw.githubusercontent.com 缓存短得多）
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }, cache: 'no-store' });
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ts=${Date.now()}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}` } });
   if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
   const data = await res.json();
   const decoded = atob(data.content);
@@ -778,14 +777,16 @@ export default function App() {
 
   const saveSiteContent = async () => {
     if (!editingContent) return;
-    setAdminSaveStatus('保存中...');
+    // 立即更新页面和本地缓存，不依赖GitHub API
+    setSiteContent(editingContent);
+    safeSetStorage('nuke_site_content', editingContent);
+    setAdminSaveStatus('已同步');
     try {
       const { sha } = await getGitHubFile('site-content.json');
       await writeGitHubFile('site-content.json', editingContent, '更新页面文本', sha);
-      setSiteContent(editingContent);
-      setAdminSaveStatus('已保存');
+      setAdminSaveStatus('已保存 ✅');
     } catch (e) {
-      setAdminSaveStatus('保存失败');
+      setAdminSaveStatus('GitHub保存失败，页面已更新');
     }
     setTimeout(() => setAdminSaveStatus(''), 3000);
   };
@@ -921,13 +922,21 @@ export default function App() {
 
   // ================= 页面文本自动加载 =================
   useEffect(() => {
+    // 先读 localStorage 实现即时显示
+    const cached = safeGetStorage('nuke_site_content', null);
+    if (cached) {
+      setSiteContent(cached);
+      setEditingContent(cached);
+    }
+    // 再从 GitHub 获取最新版本
     (async () => {
       try {
         const { content } = await getGitHubFile('site-content.json');
         setSiteContent(content);
         setEditingContent(content);
+        safeSetStorage('nuke_site_content', content);
       } catch (e) {
-        console.warn('Failed to load site content');
+        if (!cached) console.warn('Failed to load site content');
       }
     })();
   }, []);
