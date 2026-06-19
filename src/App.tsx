@@ -526,7 +526,7 @@ const DEFAULT_MESSAGES = [
   { id: 102, name: "未来探索者", text: "极具质感的设计让人能沉下心来阅读硬核的科普内容。非常期待第四代反应堆的商业化应用，清洁能源普及指日可待！", time: "2026-06-16 09:15" }
 ];
 
-function SpiritSection({ setIsStoryOpen }) {
+function SpiritSection({ setIsStoryOpen, onGalleryClick }) {
   const refs = useRef([]);
   const addToRefs = (el) => { if (el && !refs.current.includes(el)) refs.current.push(el); };
   // 运行时检测 base path，兼容 GitHub Pages 和本地开发
@@ -561,7 +561,9 @@ function SpiritSection({ setIsStoryOpen }) {
       <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
         {stories.map((story, idx) => (
           <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
-            {story.img.length > 0 && <div className="w-full bg-[#0a101d] overflow-hidden shrink-0 relative cursor-pointer group/img" onClick={() => setIsStoryOpen(true)}>
+            {story.img.length > 0 && <div className="w-full bg-[#0a101d] overflow-hidden shrink-0 relative cursor-pointer group/img" onClick={() => {
+              if (onGalleryClick) onGalleryClick(story.img, base);
+            }}>
               <img src={base + story.img[0]} alt={story.title} loading="lazy" className="w-full h-[200px] md:h-[260px] object-cover" />
               {story.img.length > 1 && <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
                 <span className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs text-white tracking-widest">点击查看全部 {story.img.length} 张图片 →</span>
@@ -736,7 +738,7 @@ export default function App() {
     const handleKeyDown = (e) => {
       if (!lightbox.isOpen) return;
       if (e.key === 'Escape') closeLightboxSilky();
-      if (lightbox.type === 'collection') {
+      if (lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') {
         if (e.key === 'ArrowLeft') handlePrevPhoto();
         if (e.key === 'ArrowRight') handleNextPhoto();
       }
@@ -777,9 +779,15 @@ export default function App() {
     setLightbox(prev => ({ ...prev, isActive: false }));
     setTimeout(() => setLightbox({ isOpen: false, isActive: false, type: null, item: null, index: null }), 600);
   };
-  const handlePrevPhoto = () => { if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === 0 ? filteredPhotos.length - 1 : prev.index - 1 })); };
-  const handleNextPhoto = () => { if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === filteredPhotos.length - 1 ? 0 : prev.index + 1 })); };
-  const previewData = lightbox.type === 'gallery' ? lightbox.item : filteredPhotos[lightbox.index];
+  const handlePrevPhoto = () => {
+    if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === 0 ? filteredPhotos.length - 1 : prev.index - 1 }));
+    if (lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item)) setLightbox(prev => ({ ...prev, index: prev.index === 0 ? prev.item.length - 1 : prev.index - 1 }));
+  };
+  const handleNextPhoto = () => {
+    if (lightbox.type === 'collection') setLightbox(prev => ({ ...prev, index: prev.index === filteredPhotos.length - 1 ? 0 : prev.index + 1 }));
+    if (lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item)) setLightbox(prev => ({ ...prev, index: prev.index === prev.item.length - 1 ? 0 : prev.index + 1 }));
+  };
+  const previewData = lightbox.type === 'gallery' ? lightbox.item : (lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item) ? { image: lightbox.item[lightbox.index] } : filteredPhotos[lightbox.index]);
 
   const scrollToAnchor = (id) => {
     const element = document.getElementById(id);
@@ -1299,7 +1307,10 @@ export default function App() {
 
         {/* ================= 板块4：精神与文化 ================= */}
         <section id="spirit" className="site-section relative z-20 py-24 px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto">
-          <SpiritSection setIsStoryOpen={setIsStoryOpen} />
+          <SpiritSection setIsStoryOpen={setIsStoryOpen} onGalleryClick={(imgs, base) => {
+            const fullUrls = imgs.map(i => base + i);
+            openLightboxSilky('spirit-gallery', fullUrls, 0);
+          }} />
         </section>
 
         {/* ================= 板块5：政策法规解读 ================= */}
@@ -1454,16 +1465,16 @@ export default function App() {
           
           <div className="relative z-10 w-full max-w-4xl flex flex-col items-center gap-6 md:gap-8 mt-6">
             <div className={`flex items-center gap-3 px-5 py-2 bg-[#020617]/60 backdrop-blur-md border border-cyan-500/30 rounded-full text-[10px] tracking-[0.2em] font-light text-white/70 shadow-[0_0_20px_rgba(34,211,238,0.15)] lightbox-card ${lightbox.isActive ? 'active' : ''}`}>
-              <span className="text-cyan-400 font-medium">{lightbox.type === 'collection' ? previewData.category : 'CORE KNOWLEDGE'}</span>
-              {lightbox.type === 'collection' && (<><span className="opacity-30">|</span><span>{lightbox.index + 1} / {filteredPhotos.length}</span></>)}
+              <span className="text-cyan-400 font-medium">{lightbox.type === 'collection' ? previewData.category : (lightbox.type === 'spirit-gallery' ? '故事图集' : 'CORE KNOWLEDGE')}</span>
+              {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<><span className="opacity-30">|</span><span>{lightbox.index + 1} / {(lightbox.type === 'spirit-gallery' && Array.isArray(lightbox.item)) ? lightbox.item.length : filteredPhotos.length}</span></>)}
             </div>
-            
+
             <div className="relative w-full flex items-center justify-center group/viewer max-h-[55vh]">
-              {lightbox.type === 'collection' && (<button onClick={handlePrevPhoto} className="absolute left-2 md:-left-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowLeftIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
+              {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<button onClick={handlePrevPhoto} className="absolute left-2 md:-left-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowLeftIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
               <div className={`overflow-hidden rounded-2xl border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.9)] max-w-full max-h-[55vh] cursor-zoom-out lightbox-content ${lightbox.isActive ? 'active' : ''}`} onClick={closeLightboxSilky}>
                 <img src={previewData.image} className="max-w-full max-h-[55vh] object-contain select-none" />
               </div>
-              {lightbox.type === 'collection' && (<button onClick={handleNextPhoto} className="absolute right-2 md:-right-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
+              {(lightbox.type === 'collection' || lightbox.type === 'spirit-gallery') && (<button onClick={handleNextPhoto} className="absolute right-2 md:-right-16 z-30 p-3 bg-black/60 hover:bg-cyan-900/60 border border-white/10 hover:border-cyan-400/50 rounded-full text-white/50 hover:text-white opacity-0 group-hover/viewer:opacity-100 md:opacity-100 transition-all duration-300 backdrop-blur-md font-ui"><ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5" /></button>)}
             </div>
             
             <div className={`w-full max-w-2xl bg-[#040a18]/60 backdrop-blur-lg border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl text-center select-text lightbox-card ${lightbox.isActive ? 'active' : ''}`}>
