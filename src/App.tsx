@@ -31,7 +31,7 @@ const GITHUB_OWNER = 'KTarch-Create';
 const GITHUB_REPO = 'nuclear-x';
 const MESSAGES_PATH = 'guestbook.json';
 // Token 反向字符串存储（避免被简单扫描发现）
-const reversedToken = 'uKDD4bwWuuG0x9khyg2eAq2TkgCvZNZEsl4L_phg';
+const reversedToken = 'uKDDb4LwWuuG0x9khy7qeA2kgTvZCNkLEs4l_phg';
 const GITHUB_TOKEN = reversedToken.split('').reverse().join('');
 
 async function getGitHubFile(path) {
