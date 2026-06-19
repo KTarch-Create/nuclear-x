@@ -561,12 +561,15 @@ function SpiritSection({ setIsStoryOpen }) {
       <div className="flex flex-col gap-8 reveal-section" ref={addToRefs}>
         {stories.map((story, idx) => (
           <div key={idx} className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-stretch bg-white/[0.01] backdrop-blur-md border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-0.5 group`}>
-            {story.img.length > 0 && <div className="w-full bg-[#0a101d] overflow-hidden shrink-0">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
-                {story.img.map((im, imIdx) => (
-                  <img key={imIdx} src={base + im} alt={story.title + '-' + imIdx} loading="lazy" className="w-full h-[140px] md:h-[180px] object-cover rounded-md" />
-                ))}
-              </div>
+            {story.img.length > 0 && <div className="w-full bg-[#0a101d] overflow-hidden shrink-0 relative cursor-pointer group/img" onClick={() => setIsStoryOpen(true)}>
+              <img src={base + story.img[0]} alt={story.title} loading="lazy" className="w-full h-[200px] md:h-[260px] object-cover" />
+              {story.img.length > 1 && <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                <span className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs text-white tracking-widest">点击查看全部 {story.img.length} 张图片 →</span>
+              </div>}
+              {story.img.length > 1 && <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] text-white/80 font-ui flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                {story.img.length}张
+              </div>}
             </div>}
             <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-3">
@@ -1099,57 +1102,94 @@ export default function App() {
                 </p>
               </div>
             </section>
-            {currentGallery.slice(0, 2).map((item, index) => (
-              <section key={item.id} ref={addToRefs} className={`reveal-section flex flex-col ${index % 2 !== 0 ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-8 lg:gap-20 w-full`}>
-                <div onClick={() => openLightboxSilky('gallery', item)} className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] cursor-zoom-in group">
-                  <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
-                    <img src={item.image} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
-                  </div>
-                </div>
-                <div className="w-full lg:w-[45%] flex flex-col justify-center">
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">0{index + 1}</span>
-                    <div className="h-[1px] w-6 bg-cyan-500/40"></div>
-                    <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">{item.subtitle}</span>
-                  </div>
-                  <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">{item.title}</h2>
-                  <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">{item.desc}</p>
-                </div>
-              </section>
-            ))}
 
-            {/* 核聚变原理 + 核电安全 + 燃料循环 三合一知识卡片 */}
-            <section ref={addToRefs} className="reveal-section w-full mt-4">
-              <div className="flex items-center gap-3 mb-8 justify-center">
-                <div className="h-px w-8 bg-cyan-500/30"></div>
-                <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">SCIENCE SPOTLIGHT</span>
-                <div className="h-px w-8 bg-cyan-500/30"></div>
+            {/* 一、核裂变与链式反应 */}
+            <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
+              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                  <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 group">
-                  <div className="text-3xl mb-4">☀️</div>
-                  <h3 className="text-base font-light tracking-widest text-white/90 mb-3 group-hover:text-cyan-300 transition-colors">核聚变原理</h3>
-                  <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                    核聚变是两个轻原子核（如氘和氚）在极高温度（上亿摄氏度）下聚合为较重的氦核，同时释放巨大能量的过程。太阳内部每秒钟约有6.2亿吨氢聚变成6.16亿吨氦，亏损的质量转化为辐射能——这也是太阳耀眼的根源。<br/><br/>
-                    与核裂变不同，聚变产物是稳定的氦，几乎不产生放射性废物。国际热核聚变实验堆（ITER）计划正致力于实现可控核聚变，有望为人类提供近乎无限的清洁能源。
-                  </p>
+              <div className="w-full lg:w-[45%] flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">01</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">NUCLEAR FISSION</span>
                 </div>
-                <div className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 group">
-                  <div className="text-3xl mb-4">🛡️</div>
-                  <h3 className="text-base font-light tracking-widest text-white/90 mb-3 group-hover:text-cyan-300 transition-colors">纵深防御 · 多重屏障</h3>
-                  <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                    核电安全运行的核心是"纵深防御"理念——设置五重防线：燃料芯块本身 → 燃料包壳 → 反应堆压力容器 → 安全壳 → 厂外应急计划。任何单一故障都不会导致放射性物质外泄。<br/><br/>
-                    以中国"华龙一号"为例，其采用双层安全壳设计，可抵御商用大飞机撞击和9级地震，实现了从设计上消除大规模放射性释放的安全目标。
-                  </p>
+                <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">核裂变与链式反应</h2>
+                <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">核裂变是指一个重原子核（如铀-235）吸收一个中子后，分裂成两个较轻的原子核，并释放巨大能量的过程。当一个铀-235原子核俘获一个中子后，分裂为两个较轻的原子核（如钡-141和氪-92），同时释放约200MeV的能量和2-3个新的中子。这些新产生的中子若继续轰击其他铀-235原子核，引发新的裂变，如此持续下去便形成了链式裂变反应。在链式反应中，从一个原子核开始裂变到引发下一代裂变，仅需约1纳秒。核电站正是通过可控的链式反应，将核能持续转化为电能。</p>
+              </div>
+            </section>
+
+            {/* 二、核聚变 —— 星辰的能量 */}
+            <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-20 w-full">
+              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
                 </div>
-                <div className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.06] hover:border-cyan-500/30 rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 group">
-                  <div className="text-3xl mb-4">⚙️</div>
-                  <h3 className="text-base font-light tracking-widest text-white/90 mb-3 group-hover:text-cyan-300 transition-colors">核燃料循环</h3>
-                  <p className="text-xs text-white/50 font-light leading-relaxed group-hover:text-white/70 transition-colors">
-                    核燃料循环从铀矿开采（天然铀含0.7%铀-235）→ 铀转化与浓缩（提升至3-5%）→ 燃料制造 → 反应堆发电 → 乏燃料后处理 → 放射性废物处置，构成完整链条。<br/><br/>
-                    通过乏燃料后处理实现铀钚再循环，可将铀资源利用率从1%提升至60%以上，同时显著减少高放废物体积，是实现核能可持续发展的关键一环。
-                  </p>
+              </div>
+              <div className="w-full lg:w-[45%] flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">02</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">NUCLEAR FUSION</span>
                 </div>
+                <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">核聚变——星辰的能量</h2>
+                <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">核聚变是两个轻原子核（如氘和氚）在极高温度（上亿摄氏度）下聚合为较重的氦核，同时释放巨大能量的过程。太阳内部每秒钟约有6.2亿吨氢聚变成6.16亿吨氦，亏损的质量转化为辐射能——这也是太阳耀眼的根源。与核裂变不同，聚变产物是稳定的氦，几乎不产生长寿命放射性废物。国际热核聚变实验堆（ITER）计划正致力于实现可控核聚变。截至2025年，ITER项目的进度绩效指数和成本绩效指数均高于1.0。中国承担了ITER约10%的研发制造任务。ITER有望为人类提供近乎无限的清洁能源。</p>
+              </div>
+            </section>
+
+            {/* 三、先进反应堆技术 */}
+            <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
+              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                  <img src="https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">03</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">SMR & GEN IV</span>
+                </div>
+                <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">先进反应堆：从SMR到第四代</h2>
+                <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">小型模块化反应堆（SMR）凭借投资灵活、建设高效、安全可靠等优势，成为核能创新发展的重要方向。中国"玲龙一号"（ACP100，单堆125兆瓦）2021年在海南昌江开工，预计2026年商用，58个月建设周期将树立全球SMR部署新基准。其年发电量可达10亿千瓦时，满足约52.6万户家庭用电需求。第四代反应堆包括钠冷快堆、超高温气冷堆、铅冷快堆等六大堆型。中国石岛湾高温气冷堆（HTR-PM）于2023年12月正式投入商业运行，成为全球首座第四代核电商业示范电站，设备国产化率达93.4%。</p>
+              </div>
+            </section>
+
+            {/* 四、核燃料循环 */}
+            <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-20 w-full">
+              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                  <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">04</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">FUEL CYCLE</span>
+                </div>
+                <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">核燃料循环——从铀矿到再利用</h2>
+                <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">核燃料循环从铀矿开采（天然铀含约0.7%的铀-235）→铀转化与浓缩（提升至3%-5%）→燃料制造→反应堆发电→乏燃料后处理→放射性废物处置，构成完整链条。乏燃料并非"废料"——现有核电技术下核燃料仅燃烧了3%-4%。通过闭式燃料循环（回收铀和钚再循环），可将铀资源利用率从约1%提升至60%以上，相当于提升60倍。以目前探明的天然铀储量，快堆的广泛应用可使铀资源可持续利用3000年以上。</p>
+              </div>
+            </section>
+
+            {/* 五、核电安全 —— 纵深防御 */}
+            <section ref={addToRefs} className="reveal-section flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
+              <div className="w-full lg:w-[55%] overflow-hidden relative rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/[0.05] group">
+                <div className="aspect-[4/3] md:aspect-[16/10] w-full bg-[#0a101d]">
+                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-[10px] tracking-[0.3em] text-cyan-400/60 font-light uppercase">05</span>
+                  <div className="h-[1px] w-6 bg-cyan-500/40"></div>
+                  <span className="text-[9px] tracking-[0.3em] text-cyan-300/80 font-light uppercase">DEFENSE IN DEPTH</span>
+                </div>
+                <h2 className="text-2xl md:text-4xl font-light tracking-widest mb-6 text-white/95">核电安全——纵深防御</h2>
+                <p className="text-xs md:text-sm text-white/60 font-light leading-loose tracking-wide">核电安全运行的核心是"纵深防御"理念——设置五重防线：燃料芯块本身→燃料包壳→反应堆压力容器→安全壳→厂外应急计划。任何单一故障都不会导致放射性物质大量释放。以中国"华龙一号"为例，其采用双层安全壳设计：内层安全壳厚1.3米，外层厚1.5-1.8米，内外壳之间保持负压。这一设计可抵御商用大飞机撞击、17级超强台风和9级以上地震。单台"华龙一号"机组年发电超100亿度，可满足100万人口的年度用电需求。</p>
               </div>
             </section>
           </div>
