@@ -1862,7 +1862,21 @@ export default function App() {
         <ChevronDownIcon className="w-5 h-5 text-cyan-300 transform rotate-180" />
       </button>
 
-      {/* ================= 参考资料与数据来源 ================= */}
+      {/* ================= 分享与传播 ================= */}
+      <div className="bg-[#040a18] px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto py-10 border-t border-white/[0.03] font-ui">
+        <div className="text-center space-y-4">
+          <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic mb-6 block">SHARE</span>
+          <div className="flex items-center justify-center gap-6">
+            <div id="qrcode-container" className="inline-block bg-white p-2 rounded-xl">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://ktarch-create.github.io/nuclear-x/" alt="QR Code" className="w-28 h-28 md:w-36 md:h-36" />
+            </div>
+            <div className="flex flex-col items-start gap-3">
+              <span className="text-[10px] text-white/40 font-light tracking-wider">扫描二维码访问作品</span>
+              <button onClick={() => { navigator.clipboard.writeText('https://ktarch-create.github.io/nuclear-x/').then(() => { const btn = document.getElementById('copy-btn'); if(btn) { btn.textContent='✓ 已复制'; setTimeout(() => btn.textContent='📋 复制链接', 2000); } }); }} id="copy-btn" className="px-5 py-3 bg-white/[0.03] border border-white/10 hover:border-cyan-500/40 hover:bg-cyan-900/20 rounded-xl text-[10px] tracking-widest text-white/60 hover:text-white transition-all duration-300">📋 复制链接</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="bg-[#040a18] px-6 md:px-12 lg:px-32 max-w-[1440px] mx-auto py-12 border-t border-white/[0.03] font-ui">
         <div className="text-center">
           <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic mb-6 block">{siteContent?.references?.label || 'REFERENCES & DATA SOURCES'}</span>
