@@ -522,12 +522,12 @@ function RadiationShieldSimulator() {
 
 // ================= 常量数据默认配置 =================
 const SITE_SECTIONS = [
-  { id: 'knowledge', num: '1', title: '核能知识', desc: '裂变、聚变与反应堆的微观宇宙' },
+  { id: 'knowledge', num: '1', title: '核能知识', desc: '核裂变、聚变与反应堆的微观宇宙' },
   { id: 'application', num: '2', title: '核技术应用', desc: '医疗、工业与农业的跨界造福' },
-  { id: 'safety', num: '3', title: '辐射安全', desc: '理性认知，科学护航日常生活' },
-  { id: 'spirit', num: '4', title: '精神传承', desc: '两弹一星与核潜艇的奋斗史' },
+  { id: 'safety', num: '3', title: '辐射安全', desc: '摒弃未知带来的恐惧，用科学法则构建防线' },
+  { id: 'spirit', num: '4', title: '精神传承', desc: '两弹一星精神与核工业奋斗史' },
   { id: 'policy', num: '5', title: '政策法规', desc: '原子能法与核安全观深度解读' },
-  { id: 'forum', num: '6', title: '读者畅想', desc: '思想碰撞，分享您对未来的见解' }
+  { id: 'forum', num: '6', title: '读者畅想', desc: '分享您对核技术应用与发展的见解' }
 ];
 
 const DEFAULT_GALLERY = [
@@ -1495,14 +1495,6 @@ export default function App() {
           </div>
 
           <div className="reveal-section space-y-8 mt-12" ref={addToRefs}>
-
-            {/* 展区导语 */}
-            <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
-              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-600/10 blur-[100px] pointer-events-none"></div>
-              <p className="text-xs md:text-sm text-white/60 font-light leading-relaxed tracking-wide relative z-10">
-                辐射无处不在，但无需恐惧。科学认识辐射，理性防护，从容应对。本展区帮你掌握核心防护知识，消除不必要的恐慌。
-              </p>
-            </div>
 
             {/* 辐射防护三原则 */}
             <div className="bg-white/[0.015] backdrop-blur-md border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] relative overflow-hidden">
