@@ -1000,6 +1000,13 @@ export default function App() {
               <span className="text-sm md:text-base font-light tracking-[0.3em] text-white/80">参赛作品：核光纪元</span>
               <span className="text-xs tracking-[0.25em] text-cyan-200/70">重庆理工大学</span>
               <span className="text-[10px] tracking-[0.2em] text-white/40 mt-2">江志磊 · 王子健 · 张鹏程 · 杨来</span>
+              <span className="text-[9px] tracking-[0.25em] text-cyan-400/60 mt-2">科普创意赛道</span>
+            </div>
+            <div className="mt-6 text-[9px] tracking-[0.3em] text-white/15 splash-item" style={{ animation: 'fadeInUp 1s ease 0.9s forwards' }}>
+              核聚科普星火，科创燃动未来
+            </div>
+            <div className="mt-2 text-[7px] tracking-[0.2em] text-white/10 splash-item font-ui" style={{ animation: 'fadeInUp 1s ease 1s forwards' }}>
+              AI辅助创作
             </div>
             <div className="mt-12 text-[9px] tracking-[0.3em] text-white/20 animate-pulse splash-item" style={{ animation: 'fadeInUp 1s ease 1.2s forwards' }}>
               点击任意处或等待 4 秒进入
@@ -1860,9 +1867,11 @@ export default function App() {
         <div className="text-center">
           <span className="text-[9px] tracking-[0.4em] text-white/20 uppercase font-artistic mb-6 block">{siteContent?.references?.label || 'REFERENCES & DATA SOURCES'}</span>
           <div className="text-[9px] md:text-[10px] text-white/20 leading-loose tracking-wide max-w-2xl mx-auto">
-            本文中的核科学知识参考自国际原子能机构（IAEA）公开出版物、中国核能行业协会年度报告、<br className="hidden md:block" />
-            以及《原子能法》官方公开文本。辐射剂量数据参照联合国原子辐射效应科学委员会（UNSCEAR）报告。<br />
-            部分图片来源于开源图库 Unsplash，仅用于科普展示。
+            核科学知识参考自国际原子能机构（IAEA）公开出版物、中国核能行业协会年度报告。<br />
+            辐射剂量数据参照联合国原子辐射效应科学委员会（UNSCEAR）2020年报告。<br />
+            反应堆技术数据引用自中国核能行业协会《2024年核能发展报告》及华龙一号官方公开资料。<br />
+            精神文化板块史实参考自中国核工业集团有限公司官方公开史料与"两弹一星"历史文献。<br />
+            部分图片来源于开源图库 Unsplash 及参赛团队自制，仅用于科普展示。
           </div>
         </div>
       </div>
