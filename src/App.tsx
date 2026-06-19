@@ -892,6 +892,19 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // ================= 页面文本自动加载 =================
+  useEffect(() => {
+    (async () => {
+      try {
+        const { content } = await getGitHubFile('site-content.json');
+        setSiteContent(content);
+        setEditingContent(content);
+      } catch (e) {
+        console.warn('Failed to load site content');
+      }
+    })();
+  }, []);
+
   // ================= 滚动与事件监听 =================
   useEffect(() => {
     const handleScroll = () => {
